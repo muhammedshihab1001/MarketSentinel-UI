@@ -1,0 +1,104 @@
+# ─── Dependencies ────────────────────────────────────────────
+node_modules/
+.pnp
+.pnp.js
+
+# ─── Build Output ─────────────────────────────────────────────
+dist/
+dist-ssr/
+build/
+out/
+
+# ─── Environment Files ────────────────────────────────────────
+# Keep .env.example (documentation), ignore everything else
+.env
+.env.*
+!.env.example
+
+# ─── Logs ─────────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ─── Testing & Coverage ───────────────────────────────────────
+coverage/
+.nyc_output/
+*.lcov
+test-results/
+playwright-report/
+
+# ─── Vite ─────────────────────────────────────────────────────
+*.local
+.vite/
+
+# ─── Vercel ───────────────────────────────────────────────────
+.vercel/
+
+# ─── TypeScript ───────────────────────────────────────────────
+*.tsbuildinfo
+
+# ─── OS Files ─────────────────────────────────────────────────
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# ─── Editor Files ─────────────────────────────────────────────
+# VSCode — allow extensions.json for team shared extensions
+.vscode/*
+!.vscode/extensions.json
+
+# JetBrains IDEs (IntelliJ, WebStorm, etc.)
+.idea/
+*.iml
+*.iws
+*.ipr
+.idea_modules/
+
+# Vim/Neovim
+*.swp
+*.swo
+*.sw?
+*~
+.netrwhist
+
+# Emacs
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+
+# Sublime Text
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+*.sublime-workspace
+
+# ─── Package Manager Artifacts ────────────────────────────────
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# ─── Miscellaneous ────────────────────────────────────────────
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+.antigravity/
