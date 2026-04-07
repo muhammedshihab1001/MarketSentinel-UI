@@ -1,0 +1,104 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800;900&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* UI_UX_SKILL.md SPECIFIC VARIABLES */
+    --bg-base:       #020617;
+    --bg-surface:    #0f172a;
+    --bg-overlay:    #1e293b;
+    --bg-elevated:   #1e293b;
+
+    --accent-primary: #22d3ee;
+    --accent-glow:    rgba(34, 211, 238, 0.05);
+
+    --text-primary:   #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted:     #475569;
+    --text-data:      #e2e8f0;
+
+    --border-subtle:  rgba(255,255,255,0.06);
+    --border-active:  rgba(34,211,238,0.3);
+
+    --signal-long:    #10b981;
+    --signal-short:   #f43f5e;
+    --signal-neutral: #94a3b8;
+    --signal-warning: #f59e0b;
+
+    --status-healthy:  #10b981;
+    --status-warning:  #f59e0b;
+    --status-critical: #f43f5e;
+
+    /* Tailwind required variables */
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 199 89% 48%; /* Vibrant Cyan */
+    --primary-foreground: 210 40% 98%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 199 89% 48%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 199 89% 48%;
+    --radius: 0.75rem;
+  }
+
+  /* Force dark mode mapping for legacy components */
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-[var(--bg-base)] text-[var(--text-primary)] antialiased overflow-x-hidden;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Simplified clean OLED noise */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: 
+      radial-gradient(at 0% 0%, rgba(34, 211, 238, 0.02) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.015) 0px, transparent 50%);
+    pointer-events: none;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply backdrop-blur-3xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] rounded-2xl relative overflow-hidden shadow-md;
+    @apply transition-colors duration-200 hover:border-[var(--border-active)];
+  }
+
+  .adaptive-rail {
+    @apply w-16 hover:w-[220px] transition-[width] duration-300 ease-in-out backdrop-blur-xl border-r border-[var(--border-subtle)];
+    background-color: var(--bg-surface);
+  }
+
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace !important;
+  }
+
+  .font-sans {
+    font-family: 'Inter', sans-serif !important;
+  }
+}
