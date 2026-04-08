@@ -24,14 +24,16 @@ import {
 import { QUERY_KEYS, INTERVALS } from '@/lib/queryKeys';
 import NeuralScanner from '@/components/NeuralScanner';
 import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 
 const spring = { type: 'spring', stiffness: 260, damping: 20 };
 
 export default function Dashboard() {
   const queryClient = useQueryClient();
-  const { updateUsage } = useAuthStore();
-  const [lockedFeature, setLockedFeature] = useState<string | null>(null);
+  const { updateUsage, isFeatureLocked } = useAuthStore();
+  const [lockedFeature, setLockedFeature] = useState<{ name: string, reset: number } | null>(null);
+  const isLocked = isFeatureLocked('snapshot');
 
   const {
     data,
@@ -54,14 +56,15 @@ export default function Dashboard() {
       }
       return INTERVALS.SNAPSHOT;
     },
+    enabled: !isLocked,
   });
 
   // Handle DemoLockedError — show LockedFeature instead of generic error card
   if (isError && error instanceof DemoLockedError) {
     if (error.usage) updateUsage(error.usage);
-    if (!lockedFeature) setLockedFeature(error.feature);
+    if (!lockedFeature) setLockedFeature({ name: error.feature, reset: error.resetInSeconds });
   }
-  if (lockedFeature) return <LockedFeature featureName={lockedFeature} />;
+  if (lockedFeature) return <LockedFeature featureName={lockedFeature.name} resetInSeconds={lockedFeature.reset} />;
 
   const refreshMutation = useMutation({
     mutationFn: predictionApi.getSnapshot,
@@ -94,7 +97,8 @@ export default function Dashboard() {
   // Top 5 by raw_model_score descending
   const top5 = [...signals]
     .sort((a: any, b: any) => b.raw_model_score - a.raw_model_score)
-    .slice(0, 5);
+    .slice(0, 5)
+    .map(s => ({ ...s, signal: s.weight > 0.01 ? 'LONG' : s.weight < -0.01 ? 'SHORT' : 'NEUTRAL' }));
 
   // Gross/net exposure from executive_summary
   const grossExposure = summary?.gross_exposure ?? 0;
@@ -116,30 +120,30 @@ export default function Dashboard() {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={spring}
-      className="space-y-6 p-6"
+      className="space-y-8 p-4 md:p-6 min-h-full pb-32 max-w-7xl mx-auto"
     >
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-black tracking-tighter italic uppercase text-[var(--text-primary)]">
-            Dashboard
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        <div className="space-y-1">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
+            Dashboard Summary
           </h1>
-          <p className="text-xs text-[var(--text-muted)] mt-0.5 font-mono">
-            {snapshot?.snapshot_date ?? '—'} · {meta?.model_version ?? '—'}
+          <p className="text-sm text-slate-400">
+            Live market analysis and system status
           </p>
         </div>
-        <div className="flex items-center gap-4 hidden sm:flex">
-          <NeuralScanner />
+        <div className="flex items-center gap-4">
+          <NeuralScanner className="hidden md:flex" />
           <motion.div whileTap={{ scale: 0.97 }}>
             <Button
               variant="outline"
               size="sm"
               onClick={() => refreshMutation.mutate()}
               disabled={isFetching || refreshMutation.isPending}
-              className="border-[var(--border-subtle)] hover:border-[var(--border-active)] bg-[var(--bg-surface)] h-[42px]"
+              className="border-[var(--border-subtle)] hover:border-cyan-500/50 hover:text-cyan-400 bg-black/40 h-10 px-6 rounded-xl font-semibold text-sm border-none shadow-xl backdrop-blur-xl transition-all group"
             >
               <RefreshCw
-                className={`h-4 w-4 mr-2 ${isFetching ? 'animate-spin' : ''}`}
+                className={`h-4 w-4 mr-2 transition-transform group-hover:rotate-180 duration-700 ${isFetching ? 'animate-spin' : ''}`}
               />
               Refresh
             </Button>
@@ -149,7 +153,7 @@ export default function Dashboard() {
 
       {/* Loading */}
       {isLoading && (
-        <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           {[...Array(8)].map((_, i) => (
             <Skeleton key={i} className="h-28 rounded-xl bg-[var(--bg-surface)]" />
           ))}
@@ -175,9 +179,9 @@ export default function Dashboard() {
 
       {/* Computing State */}
       {isComputing && !isError && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center p-20 glass-card rounded-2xl border-[var(--border-subtle)] text-center">
-          <p className="text-lg font-mono text-[var(--accent-primary)] mb-6">
-            Computing market signals — this takes ~60s on first load.
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center p-10 glass-card rounded-2xl border-[var(--border-subtle)] text-center min-h-[40vh]">
+          <p className="text-lg font-medium text-[var(--accent-primary)] mb-6">
+            Loading results... this may take a moment.
           </p>
           <div className="w-64 h-1.5 bg-[var(--bg-overlay)] rounded-full overflow-hidden">
             <motion.div 
@@ -192,7 +196,7 @@ export default function Dashboard() {
       {/* Metric Cards */}
       {data && !isComputing && (
         <>
-          <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
+          <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
             {/* Long Signals */}
             <motion.div
               initial={{ opacity: 0, y: 8 }}
@@ -203,7 +207,7 @@ export default function Dashboard() {
                 title="Long Signals"
                 value={longSignals.length}
                 icon={<TrendingUp className="h-4 w-4 text-[var(--signal-long)]" />}
-                description="Weight > 0"
+                description="Bullish signals"
                 trend={{ value: 0, label: '', isPositive: true }}
               />
             </motion.div>
@@ -218,7 +222,7 @@ export default function Dashboard() {
                 title="Short Signals"
                 value={shortSignals.length}
                 icon={<TrendingDown className="h-4 w-4 text-[var(--signal-short)]" />}
-                description="Weight < 0"
+                description="Bearish signals"
                 trend={{ value: 0, label: '', isPositive: false }}
               />
             </motion.div>
@@ -233,39 +237,39 @@ export default function Dashboard() {
                 title="Neutral"
                 value={neutralSignals.length}
                 icon={<Minus className="h-4 w-4 text-[var(--signal-neutral)]" />}
-                description="Near-zero weight"
+                description="Neutral bias"
               />
             </motion.div>
 
-            {/* Avg Hybrid Score */}
+            {/* Avg Score */}
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ ...spring, delay: 0.16 }}
             >
               <MetricCard
-                title="Avg Hybrid Score"
+                title="Average Score"
                 value={
                   meta?.avg_hybrid_score != null
                     ? meta.avg_hybrid_score.toFixed(4)
                     : '—'
                 }
                 icon={<Zap className="h-4 w-4 text-[var(--accent-primary)]" />}
-                description="Cross-sectional mean"
+                description="Overall signal strength"
               />
             </motion.div>
 
-            {/* Gross Exposure */}
+            {/* Total Exposure */}
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ ...spring, delay: 0.20 }}
             >
               <MetricCard
-                title="Gross Exposure"
+                title="Total Exposure"
                 value={`${(grossExposure * 100).toFixed(1)}%`}
                 icon={<BarChart2 className="h-4 w-4 text-[var(--accent-primary)]" />}
-                description="Sum of |weights|"
+                description="Invested capital"
               />
             </motion.div>
 
@@ -279,35 +283,35 @@ export default function Dashboard() {
                 title="Net Exposure"
                 value={`${(netExposure * 100).toFixed(1)}%`}
                 icon={<Activity className="h-4 w-4 text-[var(--accent-primary)]" />}
-                description="Long minus short"
+                description="Directional bias"
               />
             </motion.div>
 
-            {/* Portfolio Bias */}
+            {/* Overall Trend */}
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ ...spring, delay: 0.28 }}
             >
               <MetricCard
-                title="Portfolio Bias"
+                title="Overall Trend"
                 value={summary?.portfolio_bias ?? '—'}
                 icon={<Activity className="h-4 w-4 text-[var(--text-secondary)]" />}
-                description="Market direction"
+                description="Current market bias"
               />
             </motion.div>
 
-            {/* Drift State */}
+            {/* System Stability */}
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ ...spring, delay: 0.32 }}
             >
               <MetricCard
-                title="Drift State"
-                value={driftState.toUpperCase()}
+                title="System Status"
+                value={driftState === 'hard' ? 'CRITICAL' : driftState === 'soft' ? 'WARNING' : 'HEALTHY'}
                 icon={<ShieldAlert className={`h-4 w-4 ${driftColor}`} />}
-                description={`Severity: ${driftSeverity}`}
+                description={`Alert State: ${driftSeverity}/10`}
                 className={driftState === 'hard' ? 'border-rose-500/20' : driftState === 'soft' ? 'border-amber-500/20' : ''}
               />
             </motion.div>
@@ -320,10 +324,11 @@ export default function Dashboard() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ ...spring, delay: 0.36 }}
             >
-              <Card className="glass-card">
-                <CardHeader className="pb-2">
-                  <CardTitle className="font-sans text-sm font-semibold uppercase tracking-widest text-[var(--text-muted)]">
-                    Signal Distribution
+              <Card className="glass-card h-full">
+                <CardHeader className="pb-6 border-b border-white/5">
+                  <CardTitle className="text-sm font-semibold text-[var(--text-muted)] flex items-center gap-2">
+                    <Activity className="h-4 w-4 text-cyan-500" />
+                    Market Bias
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -341,26 +346,30 @@ export default function Dashboard() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ ...spring, delay: 0.40 }}
             >
-              <Card className="glass-card">
-                <CardHeader className="pb-2">
-                  <CardTitle className="font-sans text-sm font-semibold uppercase tracking-widest text-[var(--text-muted)]">
-                    Exposure
+              <Card className="glass-card h-full">
+                <CardHeader className="pb-6 border-b border-white/5">
+                  <CardTitle className="text-sm font-semibold text-[var(--text-muted)] flex items-center gap-2">
+                    <Zap className="h-4 w-4 text-amber-500" />
+                    Position Balance
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {/* ExposureBarChart expects ExposureData[]; render a simple gross/net display */}
-                  <div className="flex flex-col gap-4 py-4">
+                  <div className="flex flex-col gap-6 py-6">
                     {[
-                      { label: 'GROSS', value: `${(grossExposure * 100).toFixed(1)}%`, color: 'bg-[var(--accent-primary)]', pct: grossExposure },
-                      { label: 'NET', value: `${(netExposure * 100).toFixed(1)}%`, color: netExposure >= 0 ? 'bg-[var(--status-healthy)]' : 'bg-rose-500', pct: Math.abs(netExposure) },
+                      { label: 'Total Invested', value: `${(grossExposure * 100).toFixed(1)}%`, color: 'bg-[var(--accent-primary)]', pct: grossExposure },
+                      { label: 'Directional Net', value: `${(netExposure * 100).toFixed(1)}%`, color: netExposure >= 0 ? 'bg-[var(--status-healthy)]' : 'bg-rose-500', pct: Math.abs(netExposure) },
                     ].map((item) => (
-                      <div key={item.label} className="space-y-1.5">
-                        <div className="flex justify-between">
-                          <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-[var(--text-muted)]">{item.label}</span>
-                          <span className="font-mono font-black italic text-xl md:text-2xl text-[var(--text-data)]">{item.value}</span>
+                      <div key={item.label} className="space-y-2">
+                        <div className="flex justify-between items-end">
+                          <span className="text-xs font-semibold text-[var(--text-muted)]">{item.label}</span>
+                          <span className="font-semibold text-2xl text-[var(--text-primary)] leading-none">{item.value}</span>
                         </div>
-                        <div className="h-2 rounded-full bg-[var(--bg-overlay)]">
-                          <div className={`h-full rounded-full ${item.color}`} style={{ width: `${Math.min(item.pct * 100, 100)}%` }} />
+                        <div className="h-2 rounded-full bg-white/5 overflow-hidden shadow-inner flex gap-0.5 p-0.5">
+                          <motion.div 
+                            initial={{ width: 0 }}
+                            animate={{ width: `${Math.min(item.pct * 100, 100)}%` }}
+                            className={cn("h-full rounded-full transition-all duration-1000", item.color)} 
+                          />
                         </div>
                       </div>
                     ))}
@@ -377,13 +386,14 @@ export default function Dashboard() {
             transition={{ ...spring, delay: 0.44 }}
           >
             <Card className="glass-card">
-              <CardHeader className="pb-2">
-                <CardTitle className="font-sans text-sm font-semibold uppercase tracking-widest text-[var(--text-muted)]">
-                  Top Signals
-                </CardTitle>
+              <CardHeader className="pb-6 border-b border-white/5">
+                <CardTitle className="text-sm font-semibold text-slate-400 flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-emerald-500" />
+                Top Opportunities
+              </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
                   {top5.map((signal, i) => (
                     <motion.div
                       key={signal.ticker}

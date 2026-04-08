@@ -245,6 +245,11 @@ export interface AgentExplainData {
   drift_state: DriftState;
   warnings: string[];
   explanation: string;
+  selection_reason?: string;
+  in_top_5?: boolean;
+  agents_approved?: string[];
+  agents_flagged?: string[];
+  agent_scores?: Record<string, number>;
   llm: LLMOutput | null;
 }
 
@@ -253,11 +258,7 @@ export interface AgentExplainResponse {
   data: AgentExplainData;
 }
 
-export interface PoliticalRiskEvent {
-  title: string;
-  date: string;
-  score: number;
-}
+export type PoliticalRiskEvent = string;
 
 export interface PoliticalRiskData {
   ticker: string;
@@ -299,7 +300,7 @@ export interface PerformanceMetrics {
   calmar_ratio: number;
   max_drawdown: number;
   volatility_ann: number;
-  win_rate: number;
+  hit_rate: number;
 }
 
 export interface PerformanceResponse {

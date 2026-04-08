@@ -10,8 +10,8 @@ export function DashboardFooter() {
     staleTime: Infinity,
   });
 
-  const metadata = data?.metadata || (data as any)?.data?.metadata;
-  const latency = metadata?.latency_ms;
+  const meta = data?.meta;
+  const latency = meta?.latency_ms;
 
   return (
     <footer className="w-full h-8 border-t border-[var(--border-subtle)] bg-[var(--bg-base)] flex items-center justify-end px-4 mt-auto shrink-0 z-50">

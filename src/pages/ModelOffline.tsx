@@ -15,7 +15,7 @@ export default function ModelOffline() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-8 bg-[#050508] overflow-hidden relative selection:bg-rose-500/30 selection:text-white text-white">
+    <div className="min-h-screen w-full flex items-center justify-center p-4 md:p-8 bg-[#050508] overflow-hidden relative selection:bg-rose-500/30 selection:text-white text-white">
       {/* ATMOSPHERIC BACKGROUND */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-rose-500/10 blur-[150px] rounded-full animate-pulse opacity-40 transition-all duration-1000" />
@@ -43,10 +43,10 @@ export default function ModelOffline() {
           </motion.div>
           
           <div className="space-y-2">
-            <h1 className="text-3xl md:text-4xl font-black tracking-tighter text-white uppercase italic leading-none drop-shadow-2xl">
-              <span className="font-black tracking-[0.4em]">RETRY CONNECTION</span>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white uppercase leading-none">
+              Connection Lost
             </h1>
-            <p className="text-slate-500 text-[11px] font-black tracking-[0.6em] uppercase italic">Cannot reach the backend server</p>
+            <p className="text-slate-500 text-[10px] font-bold tracking-widest uppercase">System connection unavailable</p>
           </div>
         </div>
 
@@ -58,18 +58,18 @@ export default function ModelOffline() {
             
             <CardHeader className="space-y-6 p-12 px-14 border-b border-white/5">
               <div className="flex items-center justify-between">
-                <Badge variant="destructive" className="px-6 py-2 rounded-full font-black tracking-widest text-[9px] uppercase shadow-2xl">CONNECTION LOST</Badge>
+                <Badge variant="destructive" className="px-4 py-1 rounded-full font-bold tracking-widest text-[9px] uppercase shadow-2xl">OFFLINE</Badge>
                 <div className="flex gap-3">
                    <div className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_15px_rgba(244,63,94,1)] animate-pulse" />
                    <div className="w-2.5 h-2.5 rounded-full bg-slate-800" />
                 </div>
               </div>
-              <CardTitle className="text-2xl md:text-3xl font-black text-white uppercase italic tracking-[0.1em] flex items-center gap-4 pt-2">
-                <Terminal className="w-8 h-8 text-rose-500 shrink-0 transition-transform group-hover:-rotate-12 duration-700" />
-                ERROR
+              <CardTitle className="text-xl md:text-2xl font-bold text-white uppercase tracking-wider flex items-center gap-4 pt-2">
+                <Terminal className="w-6 h-6 text-rose-500 shrink-0 transition-transform group-hover:scale-110 duration-700" />
+                Connection Error
               </CardTitle>
-              <p className="text-slate-500 text-[11px] font-black tracking-[0.3em] uppercase italic leading-relaxed">
-                We couldn't reach the server. Please check your internet connection or try again later.
+              <p className="text-slate-500 text-[10px] font-bold tracking-widest uppercase">
+                The connection has been interrupted. Please check your network and try again.
               </p>
             </CardHeader>
 
@@ -83,8 +83,8 @@ export default function ModelOffline() {
                    <span className="text-[10px] text-rose-500 font-black tracking-widest uppercase">ERROR: 503 SERVICE UNAVAILABLE</span>
                 </div>
                 <code className="relative z-10 leading-loose">
-                  Server Timeout: Backend did not respond. <br/>
-                  Please wait a moment and try again. <br/>
+                  Everything is offline. <br/>
+                  Please try again in a few minutes. <br/>
                 </code>
               </div>
 
@@ -100,8 +100,8 @@ export default function ModelOffline() {
                       <Zap className="h-8 w-8" />
                     </div>
                     <div className="space-y-1">
-                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] italic leading-none">System Status</p>
-                      <p className="text-2xl font-black text-white italic tracking-tighter leading-none uppercase">Standby</p>
+                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">System Status</p>
+                      <p className="text-xl font-bold text-rose-400 tracking-tight leading-none uppercase">Standby</p>
                     </div>
                  </div>
                  <div 
@@ -115,8 +115,8 @@ export default function ModelOffline() {
                       <Cpu className="h-8 w-8" />
                     </div>
                     <div className="space-y-1">
-                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] italic leading-none">Connection</p>
-                      <p className="text-2xl font-black text-white italic tracking-tighter leading-none uppercase">Offline</p>
+                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Connection</p>
+                      <p className="text-xl font-bold text-rose-400 tracking-tight leading-none uppercase">Offline</p>
                     </div>
                  </div>
               </div>
@@ -125,10 +125,10 @@ export default function ModelOffline() {
             <CardFooter className="p-14 pt-0">
               <Button 
                 onClick={() => {
-                  toast.info('Initiating synaptic bridge restoration...');
+                  toast.info('Restoring connection...');
                   navigate('/');
                 }} 
-                className="w-full h-16 bg-[var(--text-primary)] text-[var(--bg-base)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)] transition-all font-black uppercase tracking-[0.4em] rounded-xl shadow-2xl flex items-center justify-center gap-6 group active:scale-[0.98] text-lg italic"
+                className="w-full h-14 bg-white text-black hover:bg-rose-500 hover:text-white transition-all font-bold uppercase tracking-widest rounded-xl shadow-2xl flex items-center justify-center gap-6 group active:scale-[0.98] text-sm"
               >
                 <RefreshCcw className="h-8 w-8 group-hover:rotate-180 transition-transform duration-1000" />
                 TRY AGAIN
@@ -139,12 +139,12 @@ export default function ModelOffline() {
 
           {/* FOOTER BADGES */}
           <div className="pt-12 flex items-center justify-center gap-16 opacity-20 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-1000">
-             <div className="flex items-center gap-4 font-black text-[10px] tracking-[0.4em] uppercase italic text-slate-400">
-                <Zap className="w-4 h-4 text-amber-500" /> XGBoost_Engine_V.01
+             <div className="flex items-center gap-4 font-bold text-[10px] tracking-widest uppercase text-slate-400">
+                <Zap className="w-4 h-4 text-amber-500" /> System Engine v1.0
              </div>
              <div className="h-8 w-[1px] bg-white/10" />
-             <div className="flex items-center gap-4 font-black text-[10px] tracking-[0.4em] uppercase italic text-slate-400">
-                <ShieldCheck className="w-4 h-4 text-emerald-500" /> TLS_Institutional
+             <div className="flex items-center gap-4 font-bold text-[10px] tracking-widest uppercase text-slate-400">
+                <ShieldCheck className="w-4 h-4 text-emerald-500" /> Secure Protocol
              </div>
           </div>
         </div>

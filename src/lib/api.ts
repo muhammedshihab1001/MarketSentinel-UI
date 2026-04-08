@@ -1,5 +1,15 @@
 import axios, { AxiosError } from 'axios';
-import type { Top5RationaleItem } from '@/types';
+import { toast } from 'sonner';
+import type { 
+  AuthMeResponse,
+  SnapshotResponse, 
+  PortfolioResponse, 
+  DriftResponse, 
+  HealthReadyResponse, 
+  ModelInfoResponse, 
+  PerformanceResponse, 
+  AgentExplainResponse 
+} from '@/types';
 
 // --- Dedicated Error Type for Demo Lock ---
 export class DemoLockedError extends Error {
@@ -12,7 +22,8 @@ export class DemoLockedError extends Error {
     this.name = 'DemoLockedError';
     this.feature = data.feature;
     this.usage = data.usage;
-    this.resetInSeconds = data.reset_in_seconds || 0;
+    // Check top-level or nested in usage object
+    this.resetInSeconds = data.reset_in_seconds ?? data.usage?.reset_in_seconds ?? 0;
   }
 }
 
@@ -37,22 +48,72 @@ export const api = axios.create({
   timeout: Number(import.meta.env.VITE_API_TIMEOUT) || 15000,
 });
 
+// Helper to map URL to feature for quota checking
+const identifyFeatureFromUrl = (url?: string): string | null => {
+  if (!url) return null;
+  if (url.includes('/snapshot') || url.includes('/predict/live-snapshot')) return 'snapshot';
+  if (url.includes('/portfolio')) return 'portfolio';
+  if (url.includes('/drift')) return 'drift';
+  if (url.includes('/performance')) return 'performance';
+  if (url.includes('/agent/explain') || url.includes('/agent/political-risk') || url.includes('/predict/signal-explanation')) return 'agent';
+  return null;
+};
+
+// --- Request Interceptor: Block calls to locked features ---
+api.interceptors.request.use(async (config) => {
+  const feature = identifyFeatureFromUrl(config.url);
+  if (feature) {
+    try {
+      const { useAuthStore } = await import('../store/authStore');
+      const isLocked = useAuthStore.getState().isFeatureLocked(feature);
+      if (isLocked) {
+        // Block the request locally
+        throw new DemoLockedError({
+          feature,
+          message: 'Local quota check: Feature is currently locked. No request sent.',
+          usage: useAuthStore.getState().usage
+        });
+      }
+    } catch (err) {
+      if (err instanceof DemoLockedError) throw err;
+      // If store import fails, just let the request through
+    }
+  }
+  return config;
+});
+
 api.interceptors.response.use(
   (response) => {
     // Check for specific demo_locked structure in 200 responses
     if (response.data?.demo_locked) {
-      import('sonner').then(({ toast }) => {
-        toast.warning(
-          `Demo limit reached for ${response.data.feature}. ${response.data.message || 'Upgrade for full access.'}`,
-          { duration: 5000 }
-        );
-        if (response.data.usage?.fully_locked) {
-          window.location.href = '/demo';
-        }
-      });
+      const { feature, message, usage } = response.data;
+      
+      // Immediate toast notification
+      const featureNames: Record<string, string> = {
+        agent: 'AI Analysis',
+        drift: 'Stability Monitor',
+        signals: 'Market Signals',
+        strategy: 'Performance Backtest',
+        snapshot: 'System Status',
+        universe: 'Market Universe'
+      };
+      const displayName = featureNames[feature] || feature;
+
+      toast.warning(
+        `Demo limit reached for ${displayName}. ${message || 'Upgrade for full access.'}`,
+        { duration: 5000 }
+      );
+
+      // Handle redirect if fully locked
+      if (usage?.fully_locked) {
+        window.location.href = '/demo';
+      }
+
+      // Sync store (dynamic import to avoid circular dependency)
       import('../store/authStore').then(({ useAuthStore }) => {
-        useAuthStore.getState().updateUsage(response.data.usage);
-      });
+        useAuthStore.getState().updateUsage(usage);
+      }).catch(err => console.error('Store sync failed:', err));
+
       throw new DemoLockedError(response.data);
     }
 
@@ -74,6 +135,14 @@ api.interceptors.response.use(
     const status = error.response?.status || 'Network Error';
     const message = (error.response?.data as any)?.error || error.message;
     
+    if (status === 401) {
+      const requestUrl = error.config?.url ?? '';
+      // Do not redirect on auth/me — it legitimately returns 401
+      if (!requestUrl.includes('/auth/me') && !requestUrl.includes('/auth/owner-login')) {
+        window.location.href = '/login';
+      }
+    }
+    
     if (status === 403) {
       throw new OwnerOnlyError(typeof message === 'string' ? message : 'Owner access required');
     }
@@ -86,171 +155,7 @@ api.interceptors.response.use(
   }
 );
 
-// --- Auth & Demo Interfaces ---
-
-export interface AuthMeResponse {
-  authenticated: boolean;
-  role: 'owner' | 'demo' | null;
-  username?: string;
-  usage?: {
-    features: Record<string, { used: number; limit: number; remaining: number; locked: boolean }>;
-    fully_locked: boolean;
-    reset_in_seconds: number;
-    limit_per_feature: number;
-  };
-}
-
-// --- Snapshot & Prediction Interfaces ---
-
-export interface SnapshotSignal {
-  ticker: string;
-  date: string;
-  raw_model_score: number;
-  hybrid_consensus_score: number;
-  weight: number;
-}
-
-export interface SnapshotResponse {
-  metadata: {
-    model_version: string;
-    universe_size: number;
-    long_signals: number;
-    short_signals: number;
-    avg_hybrid_score: number;
-    drift_state: 'none' | 'soft' | 'hard';
-    latency_ms: number;
-    timestamp: number;
-  };
-  executive_summary: {
-    top_5_tickers: string[];
-    top_5_rationale?: Top5RationaleItem[];   // pipeline v5.9+
-    portfolio_bias: string;
-    risk_regime: string;
-    gross_exposure?: number;
-    net_exposure?: number;
-  };
-  snapshot: {
-    snapshot_date: string;
-    model_version: string;
-    gross_exposure?: number;
-    net_exposure?: number;
-    drift: {
-      drift_detected: boolean;
-      severity_score: number;
-      drift_state: 'none' | 'soft' | 'hard';
-      exposure_scale: number;
-      drift_confidence: number;
-    };
-    signals: SnapshotSignal[];
-  };
-}
-
-// --- Portfolio & Drift Interfaces ---
-
-export interface PortfolioResponse {
-  snapshot_date: string;
-  gross_exposure: number;
-  net_exposure: number;
-  long_count: number;
-  short_count: number;
-  neutral_count: number;
-  approved_trades: number;
-  rejected_trades: number;
-  drift_detected: boolean;
-  drift_state: string;
-  portfolio_health_score: number;
-  positions: Array<{ ticker: string; weight: number; signal: string }>;
-  top_5_preview: Array<{ ticker: string; score: number; weight: number }>;
-}
-
-export interface DriftResponse {
-  drift_detected: boolean;
-  severity_score: number;
-  drift_state: 'none' | 'soft' | 'hard' | 'baseline_missing';
-  exposure_scale: number;
-  retrain_required: boolean;
-  cooldown_active: boolean;
-  cooldown_remaining_seconds: number;
-  baseline_exists: boolean;
-  model_version: string;
-  served_from_cache: boolean;
-  latency_ms: number;
-}
-
-// --- Health & Model Interfaces ---
-
-export interface HealthReadyResponse {
-  ready: boolean;
-  models_loaded: boolean;
-  redis_connected: boolean;
-  db_connected: boolean;
-  data_synced: boolean;
-  model_version: string;
-  uptime_seconds: number;
-  artifact_hash: string;
-  drift_baseline_loaded?: boolean;  // optional — present on some backend versions
-}
-
-
-export interface ModelInfoResponse {
-  model_version: string;
-  schema_signature: string;
-  artifact_hash: string;
-  dataset_hash: string;
-  training_code_hash: string;
-  feature_checksum: string;
-  feature_count: number;
-}
-
-// --- Performance & Agent Interfaces ---
-
-export interface PerformanceMetrics {
-  cumulative_return: number;
-  sharpe_ratio: number;
-  sortino_ratio: number;
-  calmar_ratio: number;
-  max_drawdown: number;
-  volatility_ann: number;
-  win_rate: number;
-}
-
-export interface PerformanceResponse {
-  tickers_requested: number;
-  tickers_computed: number;
-  lookback_days: number;
-  data_source: string;
-  metrics: PerformanceMetrics;
-}
-
-export interface AgentExplainResponse {
-  success: boolean;
-  data: {
-    ticker: string;
-    snapshot_date: string;
-    raw_model_score: number;
-    weight: number;
-    hybrid_consensus_score: number;
-    signal: 'LONG' | 'SHORT' | 'NEUTRAL' | null;
-    confidence_numeric: number | null;
-    governance_score: number | null;
-    risk_level: string | null;
-    volatility_regime: string | null;
-    technical_bias: string | null;
-    drift_state: string;
-    warnings: string[];
-    explanation: string;
-    llm: {
-      llm_enabled: boolean;
-      model: string;
-      structured: {
-        summary: string;
-        rationale: string;
-        risk_commentary: string;
-        outlook: string;
-      };
-    } | null;
-  };
-}
+// Interfaces are now imported from @/types to avoid duplication.
 
 // --- API Functions ---
 

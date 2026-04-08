@@ -82,8 +82,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   isFeatureLocked: (feature: string) => {
-    const { role, usage } = get();
+    const { role, usage, fullyLocked } = get();
     if (role === 'owner') return false;
+    if (fullyLocked) return true;
     if (!usage) return false;
     
     // Check if the specific feature is locked
@@ -97,11 +98,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         try {
           const { authApi } = await import('../lib/api');
           const { data } = await authApi.me();
+          if (data?.authenticated === false) {
+            get().logout();
+            return;
+          }
           if (data?.usage) {
             get().updateUsage(data.usage);
           }
-        } catch (error) {
+        } catch (error: any) {
           console.error('Failed to refresh usage:', error);
+          if (error?.status === 401 || error?.response?.status === 401) {
+            get().logout();
+          }
         }
         resolve();
       }, 500); // 500ms — was 2000ms, caused stale quota display in DemoBanner

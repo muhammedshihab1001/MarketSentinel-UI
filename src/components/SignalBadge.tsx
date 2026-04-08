@@ -26,7 +26,7 @@ export const SignalBadge = ({ signal, className }: SignalBadgeProps) => {
       style={{ backgroundColor: config.bg }}
     >
       <span className={cn(`w-1.5 h-1.5 rounded-full animate-pulse`, config.dot)} />
-      {signal}
+      {signal === 'LONG' ? 'POSITION_LONG' : signal === 'SHORT' ? 'POSITION_SHORT' : 'BIAS_NEUTRAL'}
     </span>
   );
 };

@@ -32,8 +32,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/20 blur-[120px] rounded-full" />
         <div className="relative z-10 flex flex-col items-center gap-6">
           <div className="flex flex-col items-center">
-            <span className="text-4xl font-black tracking-tighter italic text-white uppercase drop-shadow-2xl">SENTINEL</span>
-            <span className="text-[10px] font-black tracking-[0.5em] text-primary/60 uppercase -mt-1">Handshaking_Node</span>
+            <span className="text-4xl font-black tracking-tighter italic text-white uppercase drop-shadow-2xl">MARKETSENTINEL</span>
+            <span className="text-[10px] font-black tracking-[0.5em] text-primary/60 uppercase -mt-1">CONNECTING_TO_SYSTEM</span>
           </div>
           <div className="flex items-center gap-1.5">
             {[0, 0.2, 0.4].map((delay, i) => (
@@ -54,6 +54,14 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  return <>{children}</>;
+};
+
+const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+  const { role } = useAuthStore();
+  if (role !== 'owner') {
+    return <Navigate to="/dashboard" replace />;
+  }
   return <>{children}</>;
 };
 
@@ -135,9 +143,9 @@ function AppRoutes() {
           <Route path="drift"        element={<PageWrapper><Drift /></PageWrapper>} />
           <Route path="model"        element={<PageWrapper><Model /></PageWrapper>} />
           <Route path="health"       element={<PageWrapper><Health /></PageWrapper>} />
-          <Route path="metrics"      element={<PageWrapper><Metrics /></PageWrapper>} />
+          <Route path="metrics"      element={<AdminRoute><PageWrapper><Metrics /></PageWrapper></AdminRoute>} />
           {/* U13: NEW monitoring route — live Prometheus charts */}
-          <Route path="monitoring"   element={<PageWrapper><Monitoring /></PageWrapper>} />
+          <Route path="monitoring"   element={<AdminRoute><PageWrapper><Monitoring /></PageWrapper></AdminRoute>} />
           <Route path="agent-explain" element={<PageWrapper><AgentExplanation /></PageWrapper>} />
           <Route path="demo"         element={<PageWrapper variant="scale"><DemoProfile /></PageWrapper>} />
         </Route>

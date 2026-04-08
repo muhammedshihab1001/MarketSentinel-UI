@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { DriftState } from '@/types';
-import { useAuthStore } from './authStore';
 
 interface ModelStore {
   version: string | null;
@@ -25,8 +24,6 @@ interface UIStore {
   toggleTheme: () => void;
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
-  isAuthenticated: boolean;
-  logout: () => void;
 }
 
 type AppState = ModelStore & PortfolioStore & UIStore;
@@ -63,12 +60,6 @@ export const useAppStore = create<AppState>()(
       toggleTheme: () => set((state) => ({ theme: state.theme === 'dark' ? 'light' : 'dark' })),
       sidebarOpen: true,
       setSidebarOpen: (open) => set({ sidebarOpen: open }),
-      get isAuthenticated() {
-        return useAuthStore.getState().role !== null;
-      },
-      logout: () => {
-        // Auth is cookie-based, state is managed in authStore
-      },
     }),
     {
       name: 'market-sentinel-store',

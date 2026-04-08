@@ -1,22 +1,30 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Lock, Timer, ArrowRight, ShieldAlert } from 'lucide-react';
+import { Lock, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 
 interface LockedFeatureProps {
   featureName: string;
+  resetInSeconds?: number;
   className?: string;
 }
 
-export default function LockedFeature({ featureName, className = "" }: LockedFeatureProps) {
-  const { resetInSeconds } = useAuthStore();
-  const [timeLeft, setTimeLeft] = useState(resetInSeconds);
+export default function LockedFeature({ featureName, resetInSeconds: propResetSeconds, className = "" }: LockedFeatureProps) {
+  const { resetInSeconds: storeResetSeconds } = useAuthStore();
+  
+  const initialTime = propResetSeconds ?? (storeResetSeconds > 0 ? storeResetSeconds : 604800);
+  const [timeLeft, setTimeLeft] = useState(initialTime);
 
   useEffect(() => {
-    setTimeLeft(resetInSeconds);
-  }, [resetInSeconds]);
+    if (propResetSeconds !== undefined) setTimeLeft(propResetSeconds);
+  }, [propResetSeconds]);
+
+  useEffect(() => {
+    if (propResetSeconds === undefined && storeResetSeconds > 0) setTimeLeft(storeResetSeconds);
+  }, [storeResetSeconds, propResetSeconds]);
 
   useEffect(() => {
     if (timeLeft <= 0) return;
@@ -36,62 +44,75 @@ export default function LockedFeature({ featureName, className = "" }: LockedFea
   };
 
   return (
-    <Card className={`relative overflow-hidden border-rose-500/20 bg-rose-500/5 backdrop-blur-3xl shadow-2xl rounded-[3rem] ${className} animate-in fade-in zoom-in-95 duration-700`}>
-      {/* Decorative Lock Background */}
-      <div className="absolute -right-12 -bottom-12 opacity-[0.03] rotate-12 scale-150">
-        <Lock className="w-80 h-80 text-rose-500" />
-      </div>
-
-      <CardContent className="flex flex-col items-center justify-center text-center p-14 space-y-10">
-        <div className="relative">
-          <div className="p-8 rounded-[2rem] bg-rose-500/10 border border-rose-500/20 animate-pulse">
-            <ShieldAlert className="w-16 h-16 text-rose-500" />
-          </div>
-          <div className="absolute -top-3 -right-3 p-3 rounded-2xl bg-[var(--bg-base)] border border-rose-500 shadow-2xl shadow-rose-500/50">
-            <Lock className="w-5 h-5 text-rose-500" />
-          </div>
-        </div>
-
-        <div className="space-y-4 relative z-10">
-          <h1 className="text-4xl font-black tracking-tighter text-rose-500 italic uppercase leading-none">
-            {featureName.replace(/_/g, ' ')}_EXHAUSTED
-          </h1>
-          <p className="text-slate-500 text-sm max-w-sm mx-auto font-bold uppercase italic tracking-widest leading-relaxed">
-            You have exhausted the 3-request evaluation limit for this institutional feature group.
-          </p>
-        </div>
-
-        <div 
-          className="flex items-center gap-10 relative z-10 p-8 border border-white/5 rounded-[2.5rem] shadow-inner"
-          style={{ backgroundColor: 'color-mix(in srgb, var(--bg-base), transparent 60%)' }}
-        >
-          <div className="text-left space-y-1">
-            <p className="text-[10px] uppercase font-black text-slate-500 tracking-[0.4em] italic leading-none">Restoration_In</p>
-            <div className="flex items-center gap-3 text-3xl font-black font-mono italic text-amber-500 tracking-tighter leading-none">
-              <Timer className="w-6 h-6" />
-              <span>{formatTime(timeLeft)}</span>
+    <div className={`flex items-center justify-center py-12 px-4 ${className}`}>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="w-full max-w-sm"
+      >
+        <Card className="border border-rose-500/20 bg-rose-500/5 shadow-2xl rounded-2xl overflow-hidden backdrop-blur-sm relative">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-rose-500 to-transparent opacity-50" />
+          <CardContent className="p-8 flex flex-col items-center text-center space-y-6">
+            
+            <div className="w-16 h-16 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center shadow-[0_0_15px_rgba(244,63,94,0.3)]">
+              <Lock className="w-6 h-6 text-rose-500" />
             </div>
-          </div>
-          <div className="w-px h-12 bg-white/10" />
-          <div className="text-left space-y-1">
-            <p className="text-[10px] uppercase font-black text-slate-500 tracking-[0.4em] italic leading-none">Sync_Status</p>
-            <span className="text-2xl font-black text-rose-500 italic leading-none tracking-tighter uppercase">Exhausted</span>
-          </div>
-        </div>
 
-        <div className="flex flex-col sm:flex-row gap-6 w-full max-w-lg relative z-10 pt-4">
-          <Button variant="outline" className="h-20 flex-1 gap-4 border-white/10 bg-[var(--bg-base)] hover:bg-[var(--bg-surface)] rounded-[2rem] font-black uppercase tracking-widest italic" asChild>
-            <Link to="/demo">
-              DEEP_PROFILE_HUB
-              <ArrowRight className="w-5 h-5" />
-            </Link>
-          </Button>
-          <Button variant="default" className="h-20 flex-1 gap-4 bg-rose-500/20 text-rose-500 border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all shadow-xl rounded-[2rem] font-black uppercase tracking-widest italic">
-            <ShieldAlert className="w-5 h-5" />
-            REQUEST_LICENSE
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+            <div className="space-y-2">
+              <h2 className="text-xl font-bold text-white">
+                Demo Limit Reached
+              </h2>
+              <p className="text-slate-400 text-sm leading-relaxed max-w-sm mx-auto">
+                {
+                  (() => {
+                    const featureNames: Record<string, string> = {
+                      agent: 'AI Analysis',
+                      drift: 'Stability Monitor',
+                      signals: 'Market Signals',
+                      strategy: 'Performance Backtest',
+                      snapshot: 'System Status',
+                      universe: 'Market Universe'
+                    };
+                    const displayName = featureNames[featureName] || featureName.replace(/_/g, ' ');
+                    return (
+                      <>
+                        You have reached the preview quota for the <strong>{displayName}</strong> module.
+                      </>
+                    );
+                  })()
+                }
+              </p>
+            </div>
+
+            <div className="w-full p-4 bg-black/40 border border-white/5 rounded-xl">
+               <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1">Time until reset</p>
+               <p className="text-2xl font-mono font-bold text-rose-400">
+                  {formatTime(timeLeft)}
+               </p>
+            </div>
+
+            <div className="flex flex-col gap-3 w-full pt-2">
+              <Button 
+                variant="outline" 
+                className="w-full bg-transparent border-rose-500/20 hover:bg-rose-500/10 hover:text-rose-400 text-slate-300 rounded-xl" 
+                asChild
+              >
+                <Link to="/demo">
+                  Go to Profile
+                </Link>
+              </Button>
+              <Button 
+                className="w-full bg-rose-600 hover:bg-rose-500 text-white rounded-xl gap-2 font-semibold"
+                onClick={() => window.open('https://linkedin.com/in/muhammedshihabp', '_blank')}
+              >
+                <Zap className="w-4 h-4" />
+                Upgrade Access
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </div>
   );
 }

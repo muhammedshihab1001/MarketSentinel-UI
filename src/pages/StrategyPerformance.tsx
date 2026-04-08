@@ -1,28 +1,18 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { motion } from 'framer-motion';
 import { performanceApi, DemoLockedError } from '@/lib/api';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { AlertCircle, RefreshCw, Trophy, Zap, Activity, Target, TrendingDown, TrendingUp, BarChart2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import LockedFeature from '@/components/LockedFeature';
 import { useAuthStore } from '@/store/authStore';
-import {
-  Trophy,
-  TrendingDown,
-  AlertCircle,
-  BarChart2,
-  RefreshCw,
-  Zap,
-  Target,
-  Activity,
-  TrendingUp,
-} from 'lucide-react';
 import { QUERY_KEYS, INTERVALS } from '@/lib/queryKeys';
-import { motion } from 'framer-motion';
+import { MetricCard } from '@/components/MetricCard';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Card } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
-const spring = { type: 'spring', stiffness: 260, damping: 20 };
-const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.07 } } };
-const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: spring } };
+const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
 
 // Format a number to 4 decimal places
 function fmt4(v: number | undefined | null): string {
@@ -36,39 +26,10 @@ function fmtPct4(v: number | undefined | null): string {
   return `${(v * 100).toFixed(4)}%`;
 }
 
-function MetricPill({
-  label,
-  value,
-  valueColor,
-  icon,
-}: {
-  label: string;
-  value: string;
-  valueColor?: string;
-  icon: React.ReactNode;
-}) {
-  return (
-    <motion.div variants={item}>
-      <Card className="glass-card group h-full">
-        <CardContent className="p-4 flex flex-col justify-between h-full gap-3">
-          <div className="flex items-center gap-2">
-            {icon}
-            <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-[var(--text-muted)]">
-              {label}
-            </span>
-          </div>
-          <p className={`font-mono font-black italic text-xl md:text-2xl ${valueColor ?? 'text-[var(--text-data)]'}`}>
-            {value}
-          </p>
-        </CardContent>
-      </Card>
-    </motion.div>
-  );
-}
-
 export default function StrategyPerformance() {
-  const { updateUsage } = useAuthStore();
-  const [lockedFeature, setLockedFeature] = useState<string | null>(null);
+  const { updateUsage, isFeatureLocked } = useAuthStore();
+  const [lockedFeature, setLockedFeature] = useState<{ name: string; reset: number } | null>(null);
+  const isLocked = isFeatureLocked('performance');
 
   const { data: perf, isLoading, isError, error, refetch, isFetching } = useQuery({
     queryKey: QUERY_KEYS.PERFORMANCE(),
@@ -78,48 +39,40 @@ export default function StrategyPerformance() {
       if (err instanceof DemoLockedError) return false;
       return failCount < 3;
     },
+    enabled: !isLocked,
   });
 
   // Handle DemoLockedError
   if (isError && error instanceof DemoLockedError) {
     if (error.usage) updateUsage(error.usage);
-    if (!lockedFeature) setLockedFeature(error.feature);
+    if (!lockedFeature) setLockedFeature({ name: error.feature, reset: error.resetInSeconds });
   }
-  if (lockedFeature) return <LockedFeature featureName={lockedFeature} />;
+  if (lockedFeature) return <LockedFeature featureName={lockedFeature.name} resetInSeconds={lockedFeature.reset} />;
 
   const m = perf?.metrics;
 
-  // Derive color for return/drawdown values
-  const returnColor = (v: number | undefined | null) => {
-    if (v == null) return '';
-    return v >= 0 ? 'text-[var(--status-healthy)]' : 'text-rose-500';
-  };
-
   if (isError && !(error instanceof DemoLockedError)) {
     return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="flex h-[40vh] flex-col items-center justify-center p-8 border rounded-2xl glass-card text-center space-y-6 border-rose-500/30 bg-rose-500/5 m-6"
-      >
-        <AlertCircle className="h-10 w-10 text-rose-500" />
-        <div className="space-y-2">
-          <h3 className="text-2xl font-black uppercase tracking-tight text-[var(--text-primary)] italic">
-            Performance Unavailable
-          </h3>
-          <p className="text-[var(--text-muted)] max-w-md mx-auto text-sm">
-            Strategy performance data could not be loaded. The backend may still be running inference.
+      <div className="flex h-[60vh] flex-col items-center justify-center p-12 text-center space-y-10">
+        <div className="h-24 w-24 bg-rose-500/10 border-2 border-rose-500/20 rounded-[2rem] flex items-center justify-center shadow-[0_0_50px_rgba(244,63,94,0.2)]">
+           <AlertCircle className="h-12 w-12 text-rose-500 animate-pulse" />
+        </div>
+        <div className="space-y-4">
+          <h3 className="text-3xl font-bold tracking-tight text-white mb-2">Connection Error</h3>
+          <p className="text-slate-400 max-w-md mx-auto text-sm font-medium">
+            Unable to connect to the data service. Please check your network and try again.
           </p>
         </div>
         <Button
-          variant="destructive"
+          variant="outline"
           size="lg"
-          className="font-bold tracking-widest px-8 h-12 rounded-xl"
+          className="h-16 px-12 rounded-2xl border-rose-500/30 text-rose-500 font-bold hover:bg-rose-500 hover:text-white transition-all shadow-2xl group"
           onClick={() => refetch()}
         >
-          Retry
+          <RefreshCw className={cn("h-5 w-5 mr-4 transition-transform group-active:rotate-180", isFetching && "animate-spin")} />
+          Reconnect
         </Button>
-      </motion.div>
+      </div>
     );
   }
 
@@ -128,118 +81,113 @@ export default function StrategyPerformance() {
       variants={container}
       initial="hidden"
       animate="show"
-      className="space-y-6 p-4 md:p-6"
+      className="space-y-12 p-4 md:p-6 min-h-full pb-32"
     >
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-black tracking-tighter italic uppercase text-[var(--text-primary)]">
-            Performance
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="space-y-1">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
+            Performance Metrics
           </h1>
-          <p className="text-xs text-[var(--text-muted)] mt-1 font-mono">
-            252-day lookback · {perf?.tickers_computed ?? '—'} tickers computed
+          <p className="text-sm text-slate-400">
+            Historical returns and risk assessment
           </p>
         </div>
+
         <motion.button
-          whileTap={{ scale: 0.97 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => refetch()}
           disabled={isFetching}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] hover:border-[var(--border-active)] transition-colors text-sm text-[var(--text-secondary)] cursor-pointer"
+          className="h-16 px-10 rounded-2xl bg-black/40 border border-white/5 hover:border-cyan-500/50 transition-all flex items-center gap-4 group shadow-2xl backdrop-blur-xl"
         >
-          <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
-          Refresh
+          <RefreshCw className={cn("h-5 w-5 text-cyan-500 transition-transform group-hover:rotate-180", isFetching && "animate-spin")} />
+          <span className="text-xs font-semibold text-slate-400 group-hover:text-white">Refresh</span>
         </motion.button>
       </div>
 
-      {/* Loading */}
+      {/* Loading State */}
       {isLoading && (
-        <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
+        <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
           {[...Array(8)].map((_, i) => (
-            <Skeleton key={i} className="h-28 rounded-xl bg-[var(--bg-surface)]" />
+            <Skeleton key={i} className="h-40 rounded-[2rem] bg-white/5" />
           ))}
         </div>
       )}
 
       {perf && m && (
         <>
-          {/* 8 metric cards */}
-          <motion.div variants={container} initial="hidden" animate="show" className="grid gap-4 grid-cols-2 md:grid-cols-4">
-            <MetricPill
-              label="Cumulative Return"
+          {/* Main Matrix */}
+          <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+            <MetricCard
+              title="Total Return"
               value={fmtPct4(m.cumulative_return)}
-              valueColor={returnColor(m.cumulative_return)}
-              icon={<Trophy className="h-4 w-4 text-amber-500" />}
+              icon={<Trophy className="text-amber-500" />}
+              description="Overall growth"
             />
-            <MetricPill
-              label="Sharpe Ratio"
+            <MetricCard
+              title="Risk Score"
               value={fmt4(m.sharpe_ratio)}
-              icon={<Zap className="h-4 w-4 text-[var(--accent-primary)]" />}
+              icon={<Zap className="text-cyan-400" />}
+              description="Efficiency ratio"
             />
-            <MetricPill
-              label="Sortino Ratio"
+            <MetricCard
+              title="Downside Protection"
               value={fmt4(m.sortino_ratio)}
-              icon={<Activity className="h-4 w-4 text-[var(--accent-primary)]" />}
+              icon={<Activity className="text-indigo-400" />}
+              description="Security rank"
             />
-            <MetricPill
-              label="Calmar Ratio"
+            <MetricCard
+              title="Recovery Speed"
               value={fmt4(m.calmar_ratio)}
-              icon={<Target className="h-4 w-4 text-[var(--text-secondary)]" />}
+              icon={<Target className="text-emerald-400" />}
+              description="Speed of rebound"
             />
-            <MetricPill
-              label="Max Drawdown"
+            <MetricCard
+              title="Max Loss"
               value={fmtPct4(m.max_drawdown)}
-              valueColor={returnColor(m.max_drawdown)}
-              icon={<TrendingDown className="h-4 w-4 text-rose-500" />}
+              icon={<TrendingDown className="text-rose-500" />}
+              description="Worst case drop"
             />
-            <MetricPill
-              label="Annual Return"
-              value={fmt4((m as any).annual_return ?? m.cumulative_return)}
-              valueColor={returnColor((m as any).annual_return ?? m.cumulative_return)}
-              icon={<TrendingUp className="h-4 w-4 text-[var(--status-healthy)]" />}
+            <MetricCard
+              title="Annual Yield"
+              value={fmtPct4((m as any).annual_return ?? m.cumulative_return)}
+              icon={<TrendingUp className="text-cyan-400" />}
+              description="Yearly output"
             />
-            <MetricPill
-              label="Hit Rate"
-              value={fmtPct4((m as any).hit_rate ?? m.win_rate)}
-              icon={<BarChart2 className="h-4 w-4 text-indigo-400" />}
+            <MetricCard
+              title="Success Rate"
+              value={fmtPct4((m as any).hit_rate)}
+              icon={<BarChart2 className="text-indigo-400" />}
+              description="Accuracy level"
             />
-            <MetricPill
-              label="Annual Volatility"
+            <MetricCard
+              title="Volatility"
               value={fmtPct4((m as any).annual_volatility ?? m.volatility_ann)}
-              icon={<Activity className="h-4 w-4 text-[var(--text-secondary)]" />}
+              icon={<Activity className="text-slate-500" />}
+              description="Stability index"
             />
-          </motion.div>
+          </div>
 
-
-          {/* Info card */}
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...spring, delay: 0.36 }}
-          >
-            <Card className="glass-card">
-              <CardHeader className="pb-2">
-                <CardTitle className="font-sans text-sm font-semibold uppercase tracking-widest text-[var(--text-muted)]">
-                  Data Source
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex flex-wrap gap-6">
-                <div className="flex flex-col gap-1">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-[var(--text-muted)]">Source</span>
-                  <span className="font-mono text-sm text-[var(--text-data)]">{perf.data_source}</span>
+          {/* System Logs */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+            <Card className="glass-card border-none bg-black/40 shadow-2xl backdrop-blur-xl rounded-[2.5rem] overflow-hidden p-10">
+                <div className="flex flex-wrap gap-10">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Source</p>
+                    <p className="font-mono text-lg font-bold text-white uppercase">{perf.data_source}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Timeframe</p>
+                    <p className="font-mono text-lg font-bold text-white uppercase">{perf.lookback_days} Days</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Tickers</p>
+                    <p className="font-mono text-lg font-bold text-white uppercase">{perf.tickers_requested}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Records</p>
+                    <p className="font-mono text-lg font-bold text-white uppercase">{perf.tickers_computed}</p>
+                  </div>
                 </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-[var(--text-muted)]">Lookback</span>
-                  <span className="font-mono text-sm text-[var(--text-data)]">{perf.lookback_days} days</span>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-[var(--text-muted)]">Tickers Requested</span>
-                  <span className="font-mono text-sm text-[var(--text-data)]">{perf.tickers_requested}</span>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-[var(--text-muted)]">Tickers Computed</span>
-                  <span className="font-mono text-sm text-[var(--text-data)]">{perf.tickers_computed}</span>
-                </div>
-              </CardContent>
             </Card>
           </motion.div>
         </>
@@ -247,3 +195,5 @@ export default function StrategyPerformance() {
     </motion.div>
   );
 }
+
+// CN helper removed as it's now imported from utils

@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingUp, TrendingDown, AlertTriangle, Minus, Zap, ShieldCheck, ChevronRight } from 'lucide-react';
+import { TrendingUp, TrendingDown, AlertTriangle, Minus, ChevronRight } from 'lucide-react';
 import { cn, formatPercent } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -92,20 +92,20 @@ export function SignalCard({ signal }: SignalCardProps) {
         </CardHeader>
 
         <CardContent className="px-6 pb-6 relative z-10 flex-1 flex flex-col justify-end">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 border-t border-white/5 pt-6 mt-4">
             <div className="space-y-1">
-              <span className="text-[9px] text-[var(--text-muted)] uppercase font-bold tracking-wider flex items-center gap-1.5 italic leading-none">
-                <Zap className="w-3 h-3 text-[var(--accent-primary)]" /> Consensus
+              <span className="text-[8px] text-[var(--text-muted)] uppercase font-bold tracking-widest flex items-center gap-1.5 leading-none">
+                Strength
               </span>
-              <p className="font-mono font-black text-xl italic text-[var(--text-data)] leading-none">
+              <p className="font-mono font-bold text-xl text-[var(--text-primary)] leading-none tracking-tight">
                 {(signal.hybrid_consensus_score ?? signal.hybrid_score ?? 0).toFixed(2)}
               </p>
             </div>
             <div className="space-y-1">
-              <span className="text-[9px] text-[var(--text-muted)] uppercase font-bold tracking-wider flex items-center gap-1.5 italic leading-none">
-                <ShieldCheck className="w-3 h-3 text-[var(--accent-primary)]" /> Position
+              <span className="text-[8px] text-[var(--text-muted)] uppercase font-bold tracking-widest flex items-center gap-1.5 leading-none">
+                Target Weight
               </span>
-              <p className="font-mono font-black text-xl italic text-[var(--text-data)] leading-none">
+              <p className="font-mono font-bold text-xl text-[var(--text-primary)] leading-none tracking-tight">
                 {formatPercent(signal.weight)}
               </p>
             </div>
@@ -114,20 +114,20 @@ export function SignalCard({ signal }: SignalCardProps) {
           <div className="mt-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
               {signal.drift_flag ? (
-                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-rose-500/10 border border-rose-500/20 rounded-full animate-pulse">
+                <div className="flex items-center gap-1.5 px-3 py-1 bg-rose-500/10 border border-rose-500/20 rounded-lg animate-pulse shadow-[0_0_10px_rgba(244,63,94,0.1)]">
                   <AlertTriangle className="h-2.5 w-2.5 text-rose-500" />
-                  <span className="text-[7px] font-bold uppercase text-rose-500 tracking-wider">Drift</span>
+                  <span className="text-[8px] font-bold uppercase text-rose-500 tracking-widest">DRift detected</span>
                 </div>
               ) : (
                 <div
-                  className="flex items-center gap-1.5 px-2 py-0.5 border rounded-full"
+                  className="flex items-center gap-1.5 px-3 py-1 border rounded-lg shadow-sm"
                   style={{
-                    backgroundColor: 'color-mix(in srgb, var(--status-healthy), transparent 90%)',
-                    borderColor: 'color-mix(in srgb, var(--status-healthy), transparent 80%)',
+                    backgroundColor: 'rgba(16, 185, 129, 0.05)',
+                    borderColor: 'rgba(16, 185, 129, 0.2)',
                   }}
                 >
-                  <div className="h-1 w-1 rounded-full bg-[var(--status-healthy)] shadow-[0_0_8px_var(--status-healthy)]" />
-                  <span className="text-[7px] font-bold uppercase text-[var(--status-healthy)] tracking-wider">Stable</span>
+                  <div className="h-1.5 w-1.5 rounded-full bg-[var(--status-healthy)] shadow-[0_0_8px_var(--status-healthy)]" />
+                  <span className="text-[8px] font-bold uppercase text-[var(--status-healthy)] tracking-widest">STable</span>
                 </div>
               )}
             </div>

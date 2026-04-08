@@ -12,10 +12,11 @@ import {
   TrendingUp, AlertCircle, RefreshCw, Radio,
   BarChart2, Clock, Server, Lock
 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
+import { useAuthStore } from '@/store/authStore';
 
 // ── Prometheus text parser ────────────────────────────────────
 function parsePrometheus(raw: string) {
@@ -84,15 +85,15 @@ function CustomTooltip({ active, payload, label }: any) {
 function StatCard({ label, value, sub, icon: Icon, color = 'text-[var(--accent-primary)]', pulse = false }: any) {
   return (
     <Card className="glass-card border-none rounded-2xl overflow-hidden group">
-      <CardContent className="p-5 flex flex-col gap-3">
+      <CardContent className="p-4 flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 italic">{label}</span>
-          <div className={cn("p-2 rounded-xl bg-white/[0.03] border border-white/5", pulse && "animate-pulse")}>
-            <Icon className={cn("w-4 h-4", color)} />
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{label}</span>
+          <div className={cn("p-1.5 rounded-lg bg-white/[0.03] border border-white/5", pulse && "animate-pulse")}>
+            <Icon className={cn("w-3.5 h-3.5", color)} />
           </div>
         </div>
-        <p className={cn("text-3xl font-black italic tracking-tighter leading-none", color)}>{value}</p>
-        {sub && <p className="text-[10px] text-slate-600 font-bold uppercase tracking-wider italic">{sub}</p>}
+        <p className={cn("text-2xl font-bold tracking-tight leading-none", color)}>{value}</p>
+        {sub && <p className="text-[10px] text-slate-500 font-medium">{sub}</p>}
       </CardContent>
     </Card>
   );
@@ -104,12 +105,15 @@ const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transiti
 
 export default function Monitoring() {
   const [sparkHistory, setSparkHistory] = useState<{ t: string; reqs: number; errs: number }[]>([]);
+  const { isFeatureLocked } = useAuthStore();
+  const isLocked = isFeatureLocked('snapshot');
 
   // Health
   const { data: health, refetch: refetchHealth } = useQuery({
     queryKey: ['monitoring-health'],
     queryFn: healthApi.getReady,
     refetchInterval: 15000,
+    enabled: !isLocked,
   });
 
   const { data: _icData } = useQuery({
@@ -125,6 +129,7 @@ export default function Monitoring() {
       return metricsData;
     },
     refetchInterval: 30000,
+    enabled: !isLocked,
     retry: (failCount: number, err: any) => {
       if (err instanceof OwnerOnlyError) return false;
       return failCount < 3;
@@ -164,14 +169,14 @@ export default function Monitoring() {
 
   if (diagError instanceof OwnerOnlyError || metricsError instanceof OwnerOnlyError) {
     return (
-      <div className="p-6 max-w-7xl mx-auto h-full flex flex-col items-center justify-center mt-20">
+      <div className="space-y-12 p-4 md:p-6 min-h-full pb-32 flex flex-col items-center justify-center p-8">
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="w-full max-w-md">
           <Card className="glass-card border-[var(--border-subtle)] bg-[var(--bg-surface)] rounded-2xl p-6">
             <CardContent className="flex flex-col items-center justify-center text-center p-6 gap-4">
               <Lock className="h-8 w-8 text-[var(--accent-primary)] opacity-60" />
               <div>
-                <h3 className="text-xl font-bold text-[var(--text-primary)]">System Diagnostics</h3>
-                <p className="text-sm text-[var(--text-muted)] mt-1">Monitoring tools are available to owner accounts only.</p>
+                <h3 className="text-xl font-bold text-[var(--text-primary)]">System Monitoring</h3>
+                <p className="text-sm text-[var(--text-muted)] mt-1">System monitoring is restricted to administrators.</p>
               </div>
             </CardContent>
           </Card>
@@ -181,45 +186,38 @@ export default function Monitoring() {
   }
 
   return (
-    <motion.div variants={container} initial="hidden" animate="show" className="space-y-8 p-6 pb-20 max-w-7xl mx-auto">
+    <motion.div variants={container} initial="hidden" animate="show" className="space-y-12 p-4 md:p-6 min-h-full pb-32 max-w-7xl mx-auto">
 
       {/* ── HEADER ─────────────────────────────────────────── */}
       <motion.div variants={item} className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-        <div>
-          <div className="flex items-center gap-4 mb-2">
-            <div className={cn(
-              "h-2.5 w-2.5 rounded-full shadow-lg",
-              healthOk ? "bg-emerald-500 shadow-emerald-500/50 animate-pulse" : "bg-rose-500 shadow-rose-500/50"
-            )} />
-            <Badge variant="outline" className="text-[10px] font-black uppercase tracking-[0.3em] border-white/10 bg-white/[0.02] text-slate-400 italic">
-              {healthOk ? 'ALL_SYSTEMS_OPERATIONAL' : 'DEGRADED_MODE'}
-            </Badge>
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-10">
+          <div className="space-y-1">
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white leading-none">
+              System Monitor
+            </h1>
+            <p className="text-sm text-slate-400">
+              Live updates on platform health and performance
+            </p>
           </div>
-          <h1 className="text-2xl md:text-3xl font-black tracking-tighter italic uppercase text-[var(--text-primary)] leading-none">
-            MONITORING
-          </h1>
-          <p className="text-[var(--text-muted)] text-xs font-mono mt-1">
-            Live Prometheus telemetry · refreshes every 30s
-          </p>
+          <Button
+            variant="outline"
+            onClick={handleRefreshAll}
+            disabled={isFetching}
+            className="h-10 px-6 border-white/10 bg-white/[0.02] hover:bg-white/[0.05] rounded-xl font-semibold text-sm gap-2"
+          >
+            <RefreshCw className={cn("h-4 w-4", isFetching && "animate-spin text-[var(--accent-primary)]")} />
+            Refresh
+          </Button>
         </div>
-        <Button
-          variant="outline"
-          onClick={handleRefreshAll}
-          disabled={isFetching}
-          className="h-12 px-6 border-white/10 bg-white/[0.02] hover:bg-white/[0.05] rounded-2xl font-black uppercase tracking-widest text-[11px] gap-3"
-        >
-          <RefreshCw className={cn("h-4 w-4", isFetching && "animate-spin text-[var(--accent-primary)]")} />
-          Refresh All
-        </Button>
       </motion.div>
 
       {/* ── SYSTEM STATUS STRIP ────────────────────────────── */}
-      <motion.div variants={item} className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'API Server', ok: healthOk, icon: Server },
-          { label: 'PostgreSQL', ok: dbOk, icon: Database },
-          { label: 'Redis Cache', ok: redisOk, icon: Radio },
-          { label: 'ML Model', ok: modelOk, icon: Cpu },
+          { label: 'System Server', ok: healthOk, icon: Server },
+          { label: 'System Database', ok: dbOk, icon: Database },
+          { label: 'System Cache', ok: redisOk, icon: Radio },
+          { label: 'Analysis Model', ok: modelOk, icon: Cpu },
         ].map(({ label, ok, icon: Icon }) => (
           <Card key={label} className={cn(
             "glass-card border-none rounded-2xl overflow-hidden",
@@ -233,9 +231,9 @@ export default function Monitoring() {
                 <Icon className={cn("w-4 h-4", ok ? "text-emerald-400" : "text-rose-400")} />
               </div>
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 italic">{label}</p>
-                <p className={cn("text-sm font-black italic", ok ? "text-emerald-400" : "text-rose-400")}>
-                  {ok ? 'ONLINE' : 'OFFLINE'}
+                <p className="text-xs font-semibold text-slate-500">{label}</p>
+                <p className={cn("text-sm font-bold", ok ? "text-emerald-400" : "text-rose-400")}>
+                  {ok ? 'Online' : 'Offline'}
                 </p>
               </div>
             </CardContent>
@@ -245,33 +243,33 @@ export default function Monitoring() {
 
       {/* ── HEALTH DETAIL ──────────────────────────────────── */}
       {health && (
-        <motion.div variants={item} className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard label="Uptime" value={health.uptime_seconds != null ? `${Math.floor(health.uptime_seconds / 60)}m` : '—'} sub="since last boot" icon={Clock} color="text-cyan-400" />
-          <StatCard label="Model Version" value={health.model_version?.slice(-8) ?? '—'} sub="artifact hash prefix" icon={Cpu} color="text-indigo-400" />
-          <StatCard label="Data Synced" value={health.data_synced ? 'YES' : 'NO'} sub="ohlcv_daily" icon={Database} color={health.data_synced ? "text-emerald-400" : "text-rose-400"} />
-          <StatCard label="Drift Baseline" value={health.drift_baseline_loaded ? 'LOADED' : 'MISSING'} sub="baseline.json" icon={ShieldCheck} color={health.drift_baseline_loaded ? "text-emerald-400" : "text-amber-400"} />
+        <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard label="Uptime" value={health.uptime_seconds != null ? `${Math.floor(health.uptime_seconds / 60)}m` : '—'} sub="since startup" icon={Clock} color="text-cyan-400" />
+          <StatCard label="Model Version" value={health.model_version?.slice(-8) ?? '—'} sub="version ID" icon={Cpu} color="text-indigo-400" />
+          <StatCard label="Data Status" value={health.data_synced ? 'ACTIVE' : 'OFFLINE'} sub="Daily Data" icon={Database} color={health.data_synced ? "text-emerald-400" : "text-rose-400"} />
+          <StatCard label="Baseline" value={health.drift_baseline_loaded ? 'READY' : 'MISSING'} sub="Reference" icon={ShieldCheck} color={health.drift_baseline_loaded ? "text-emerald-400" : "text-amber-400"} />
         </motion.div>
       )}
 
       {/* ── PROMETHEUS STATS ───────────────────────────────── */}
       {metrics && (
         <>
-          <motion.div variants={item} className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <StatCard label="Total Requests" value={metrics.totalReqs.toFixed(0)} sub="all endpoints" icon={Activity} pulse />
-            <StatCard label="Error Rate" value={`${metrics.errorRate.toFixed(1)}%`} sub={`${metrics.totalErrs.toFixed(0)} errors`} icon={AlertCircle} color={metrics.errorRate > 5 ? "text-rose-400" : "text-emerald-400"} />
-            <StatCard label="Cache Hit Rate" value={`${metrics.cacheHitRate}%`} sub={`${metrics.cacheHits.toFixed(0)} hits`} icon={Zap} color="text-amber-400" />
-            <StatCard label="Inferences" value={metrics.inferenceTotal.toFixed(0)} sub="model.predict() calls" icon={TrendingUp} color="text-purple-400" />
+          <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatCard label="Total Requests" value={metrics.totalReqs.toFixed(0)} sub="total" icon={Activity} pulse />
+            <StatCard label="Error Rate" value={`${metrics.errorRate.toFixed(1)}%`} sub={`${metrics.totalErrs.toFixed(0)} total errors`} icon={AlertCircle} color={metrics.errorRate > 5 ? "text-rose-400" : "text-emerald-400"} />
+            <StatCard label="Cache Rate" value={`${metrics.cacheHitRate}%`} sub={`${metrics.cacheHits.toFixed(0)} hits`} icon={Zap} color="text-amber-400" />
+            <StatCard label="AI Decisions" value={metrics.inferenceTotal.toFixed(0)} sub="predict calls" icon={TrendingUp} color="text-purple-400" />
           </motion.div>
 
           {/* ── CHARTS ROW ─────────────────────────────────── */}
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
 
             {/* Request history sparkline */}
             <motion.div variants={item}>
               <Card className="glass-card border-none rounded-2xl">
                 <CardHeader className="pb-2 px-5 pt-5">
-                  <CardTitle className="text-xs font-black uppercase tracking-[0.3em] text-slate-500 italic flex items-center gap-2">
-                    <Activity className="w-4 h-4 text-[var(--accent-primary)]" /> Request History (live)
+                  <CardTitle className="text-sm font-semibold text-slate-400 flex items-center gap-2">
+                    <Activity className="w-4 h-4 text-[var(--accent-primary)]" /> Request History
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="px-2 pb-4">
@@ -292,8 +290,8 @@ export default function Monitoring() {
                       </AreaChart>
                     </ResponsiveContainer>
                   ) : (
-                    <div className="h-40 flex items-center justify-center text-slate-700 font-black uppercase tracking-[0.4em] text-[10px] italic">
-                      Accumulating data...
+                    <div className="h-40 flex items-center justify-center text-slate-700 font-bold uppercase tracking-widest text-[10px] italic">
+                      Gathering stats...
                     </div>
                   )}
                 </CardContent>
@@ -304,8 +302,8 @@ export default function Monitoring() {
             <motion.div variants={item}>
               <Card className="glass-card border-none rounded-2xl">
                 <CardHeader className="pb-2 px-5 pt-5">
-                  <CardTitle className="text-xs font-black uppercase tracking-[0.3em] text-slate-500 italic flex items-center gap-2">
-                    <BarChart2 className="w-4 h-4 text-indigo-400" /> Requests by Endpoint
+                  <CardTitle className="text-sm font-semibold text-slate-400 flex items-center gap-2">
+                    <BarChart2 className="w-4 h-4 text-indigo-400" /> Requests by Category
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="px-2 pb-4">
@@ -321,8 +319,8 @@ export default function Monitoring() {
                       </BarChart>
                     </ResponsiveContainer>
                   ) : (
-                    <div className="h-40 flex items-center justify-center text-slate-700 font-black uppercase tracking-[0.4em] text-[10px] italic">
-                      No endpoint data yet
+                    <div className="h-40 flex items-center justify-center text-slate-700 font-bold uppercase tracking-widest text-[10px] italic">
+                      No endpoint data
                     </div>
                   )}
                 </CardContent>
@@ -339,10 +337,10 @@ export default function Monitoring() {
             <CardContent className="p-12 flex flex-col items-center gap-6 text-center">
               <AlertCircle className="w-12 h-12 text-slate-700" />
               <div>
-                <p className="font-black uppercase italic tracking-tighter text-2xl text-slate-600">Metrics Unavailable</p>
-                <p className="text-slate-700 text-sm mt-2">Backend /metrics endpoint unreachable. Is the API running?</p>
+                <p className="font-bold text-2xl text-white tracking-tight">Metrics Unavailable</p>
+                <p className="text-slate-400 text-sm mt-2">System data unreachable. Please check the connection.</p>
               </div>
-              <Button variant="outline" onClick={handleRefreshAll} className="border-white/10 rounded-2xl font-black uppercase tracking-widest text-[11px]">
+              <Button variant="outline" onClick={handleRefreshAll} className="border-white/10 rounded-xl font-semibold text-sm">
                 Retry
               </Button>
             </CardContent>

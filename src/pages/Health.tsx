@@ -1,22 +1,21 @@
 import { useQuery } from '@tanstack/react-query';
 import { healthApi } from '@/lib/api';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Server,
-  Clock,
-  ShieldCheck,
   Zap,
   RefreshCw,
   Database,
   Cpu,
-  Activity,
   Wifi,
   WifiOff,
 } from 'lucide-react';
 import { QUERY_KEYS, INTERVALS } from '@/lib/queryKeys';
 import { motion } from 'framer-motion';
 import type { HealthReadyResponse } from '@/types';
+import { useAuthStore } from '@/store/authStore';
+import { cn } from '@/lib/utils';
+import { Card, CardContent } from '@/components/ui/card';
 
 // =========================================================
 // HELPERS
@@ -27,283 +26,175 @@ const formatUptime = (seconds: number): string => {
   const d = Math.floor(seconds / 86400);
   const h = Math.floor((seconds % 86400) / 3600);
   const m = Math.floor((seconds % 3600) / 60);
-  if (d > 0) return `${d}d ${h}h ${m}m`;
-  if (h > 0) return `${h}h ${m}m`;
-  return `${m}m`;
+  if (d > 0) return `${d}D ${h}H ${m}M`;
+  if (h > 0) return `${h}H ${m}M`;
+  return `${m}M`;
 };
 
-const truncateHash = (hash: string | undefined, len = 16): string => {
+const truncateHash = (hash: string | undefined, len = 24): string => {
   if (!hash || hash === 'unknown') return '—';
   return hash.length > len ? `${hash.slice(0, len)}…` : hash;
 };
 
-// =========================================================
-// STATUS DOT — pulsing colored indicator
-// =========================================================
-
-function StatusDot({ online }: { online: boolean }) {
+function StatusIndicator({ online }: { online: boolean }) {
   return (
-    <span className="relative flex h-2.5 w-2.5">
-      {online && (
-        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--status-healthy)] opacity-60" />
-      )}
-      <span
-        className={`relative inline-flex rounded-full h-2.5 w-2.5 ${
-          online ? 'bg-[var(--status-healthy)]' : 'bg-[var(--status-critical)]'
-        }`}
-      />
-    </span>
-  );
-}
-
-// =========================================================
-// STATUS BADGE
-// =========================================================
-
-function StatusBadge({ online }: { online: boolean }) {
-  return (
-    <span
-      className={`font-mono text-xs font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-md ${
-        online
-          ? 'text-[var(--status-healthy)] bg-[var(--status-healthy)]/10'
-          : 'text-[var(--status-critical)] bg-[var(--status-critical)]/10'
-      }`}
-    >
-      {online ? 'ONLINE' : 'OFFLINE'}
-    </span>
-  );
-}
-
-// =========================================================
-// STATUS ROW
-// =========================================================
-
-function StatusRow({
-  icon: Icon,
-  label,
-  online,
-  detail,
-}: {
-  icon: React.ElementType;
-  label: string;
-  online: boolean;
-  detail?: string;
-}) {
-  return (
-    <div className="flex items-center justify-between py-3 border-b border-[var(--border-subtle)] last:border-0">
-      <div className="flex items-center gap-3">
-        <div className="p-1.5 rounded-lg bg-[var(--bg-overlay)]">
-          <Icon className="h-4 w-4 text-[var(--text-secondary)]" />
-        </div>
-        <span className="text-sm font-sans text-[var(--text-secondary)]">{label}</span>
-      </div>
-      <div className="flex items-center gap-3">
-        {detail && (
-          <span className="font-mono text-xs text-[var(--text-muted)] hidden sm:block">
-            {detail}
-          </span>
-        )}
-        <StatusBadge online={online} />
-        <StatusDot online={online} />
+    <div className="flex items-center gap-4">
+      <div className={cn(
+        "h-6 px-4 rounded-full border flex items-center gap-2",
+        online ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400" : "border-rose-500/30 bg-rose-500/10 text-rose-400"
+      )}>
+        <div className={cn("w-1.5 h-1.5 rounded-full shadow-lg", online ? "bg-emerald-500 animate-pulse" : "bg-rose-500")} />
+        <span className="text-xs font-semibold">{online ? 'Operational' : 'Degraded'}</span>
       </div>
     </div>
   );
 }
 
-// =========================================================
-// MAIN PAGE
-// =========================================================
+function HealthNode({ icon: Icon, label, online, detail }: { icon: any, label: string, online: boolean, detail?: string }) {
+  return (
+    <div className="p-8 rounded-[2rem] bg-black/40 border border-white/5 flex items-center justify-between group hover:border-cyan-500/30 transition-all duration-500 shadow-2xl backdrop-blur-xl">
+      <div className="flex items-center gap-8">
+        <div className="h-16 w-16 bg-white/[0.03] border border-white/5 rounded-2xl flex items-center justify-center group-hover:bg-cyan-500/10 group-hover:border-cyan-500/20 transition-all">
+          <Icon className={cn("h-8 w-8", online ? "text-cyan-400" : "text-rose-400")} />
+        </div>
+        <div className="space-y-1">
+          <p className="text-xs font-semibold text-slate-500">{label}</p>
+          <p className="text-lg font-bold text-white">{detail || (online ? 'Stable' : 'Offline')}</p>
+        </div>
+      </div>
+      <StatusIndicator online={online} />
+    </div>
+  );
+}
 
 export default function Health() {
+  const { isFeatureLocked } = useAuthStore();
+  const isLocked = isFeatureLocked('snapshot');
+
   const { data, isLoading, isError, refetch, isFetching } = useQuery<HealthReadyResponse>({
     queryKey: QUERY_KEYS.HEALTH_READY,
     queryFn: healthApi.getReady,
     refetchInterval: INTERVALS.HEALTH,
+    enabled: !isLocked,
   });
 
-  const spring = { type: 'spring', stiffness: 260, damping: 20 };
+  // Removed unused spring constant
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={spring}
-      className="space-y-6 p-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-12 p-4 md:p-6 min-h-full pb-32"
     >
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="font-sans font-black tracking-tighter italic uppercase text-2xl text-[var(--text-primary)]">
-            System Health
+      {/* HEADER SECTION */}
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-10">
+        <div className="space-y-2">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white leading-none">
+            System Status
           </h1>
-          <p className="text-sm text-[var(--text-muted)] mt-0.5">
-            Live infrastructure and service status
+          <p className="text-xs text-slate-400 font-medium flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+            Operational
           </p>
         </div>
+
         <motion.button
-          whileTap={{ scale: 0.97 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => refetch()}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] hover:border-[var(--border-active)] transition-colors text-sm text-[var(--text-secondary)]"
+          disabled={isFetching}
+          className="h-16 px-10 rounded-2xl bg-black/40 border border-white/5 hover:border-cyan-500/50 transition-all flex items-center gap-4 group shadow-2xl backdrop-blur-xl"
         >
-          <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
-          Refresh
+          <RefreshCw className={cn("h-5 w-5 text-cyan-500 transition-transform group-hover:rotate-180", isFetching && "animate-spin")} />
+          <span className="text-xs font-semibold text-slate-400 group-hover:text-white">Refresh</span>
         </motion.button>
       </div>
 
-      {/* Loading */}
+      {/* Loading State */}
       {isLoading && (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
           {[...Array(4)].map((_, i) => (
-            <Skeleton key={i} className="h-40 rounded-xl bg-[var(--bg-surface)]" />
+            <Skeleton key={i} className="h-32 rounded-[2rem] bg-white/5" />
           ))}
         </div>
       )}
 
-      {/* Error */}
+      {/* Error State */}
       {isError && !isLoading && (
-        <Card className="glass-card border-[var(--status-critical)]/30">
-          <CardContent className="p-6 flex items-center gap-4">
-            <WifiOff className="h-8 w-8 text-[var(--status-critical)]" />
-            <div>
-              <p className="font-sans font-semibold text-[var(--status-critical)]">
-                API Unreachable
-              </p>
-              <p className="text-sm text-[var(--text-muted)] mt-0.5">
-                Cannot connect to backend. Check that the API container is running.
+        <Card className="glass-card border-rose-500/30 bg-rose-500/5 rounded-[2rem]">
+          <CardContent className="p-12 flex flex-col items-center text-center gap-6">
+            <div className="h-16 w-16 bg-rose-500/10 rounded-2xl flex items-center justify-center">
+               <WifiOff className="h-8 w-8 text-rose-500 animate-pulse" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-xl font-bold text-white">Network Disconnected</h3>
+              <p className="text-slate-400 max-w-md mx-auto text-sm">
+                Cannot reach the backend service. Ensure everything is running.
               </p>
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Data */}
+      {/* Data Matrix */}
       {data && (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="space-y-12">
+          <div className="grid gap-6 md:grid-cols-2">
+            <HealthNode icon={Server} label="API Endpoint" online={data.ready || false} />
+            <HealthNode icon={Cpu} label="AI Models" online={data.models_loaded || false} detail={data.model_version} />
+            <HealthNode icon={Database} label="System Database" online={data.db_connected || false} />
+            <HealthNode icon={Zap} label="System Cache" online={data.redis_connected || false} />
+          </div>
 
-          {/* System Status */}
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ ...spring, delay: 0.05 }}>
-            <Card className="glass-card">
-              <CardHeader className="pb-2">
-                <CardTitle className="font-sans font-semibold text-sm uppercase tracking-widest text-[var(--text-muted)] flex items-center gap-2">
-                  <Activity className="h-4 w-4" />
-                  Service Status
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
-                {/* FIX: Use correct field names from actual /health/ready response */}
-                <StatusRow
-                  icon={Server}
-                  label="API Server"
-                  online={data.ready ?? false}
-                />
-                <StatusRow
-                  icon={Cpu}
-                  label="ML Model"
-                  online={data.models_loaded ?? false}
-                  detail={data.model_version || '—'}
-                />
-                <StatusRow
-                  icon={Database}
-                  label="PostgreSQL"
-                  online={data.db_connected ?? false}
-                />
-                <StatusRow
-                  icon={Zap}
-                  label="Redis Cache"
-                  online={data.redis_connected ?? false}
-                />
-                <StatusRow
-                  icon={ShieldCheck}
-                  label="Data Synced"
-                  online={data.data_synced ?? false}
-                />
-              </CardContent>
-            </Card>
-          </motion.div>
+          <div className="grid gap-6 md:grid-cols-3">
+             <div className="p-10 rounded-[2.5rem] bg-black/40 border border-white/5 shadow-2xl backdrop-blur-xl space-y-6">
+                <p className="text-[10px] font-bold text-cyan-500 uppercase tracking-widest">System Uptime</p>
+                <p className="font-mono text-3xl font-bold text-white leading-none">{formatUptime(data.uptime_seconds)}</p>
+                <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                   <motion.div initial={{ width: 0 }} animate={{ width: '100%' }} transition={{ duration: 2 }} className="h-full bg-cyan-500" />
+                </div>
+             </div>
+             <div className="p-10 rounded-[2.5rem] bg-black/40 border border-white/5 shadow-2xl backdrop-blur-xl space-y-6">
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Model Version</p>
+                <p className="font-mono text-lg font-bold text-white uppercase truncate" title={data.model_version}>{data.model_version || 'N/A'}</p>
+                <p className="text-xs text-slate-500 font-semibold">Build: v.{data.model_version?.slice(0, 4)}</p>
+             </div>
+             <div className="p-10 rounded-[2.5rem] bg-black/40 border border-white/5 shadow-2xl backdrop-blur-xl space-y-6">
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Version ID</p>
+                <p className="font-mono text-lg font-bold text-cyan-400 uppercase truncate">{truncateHash(data.artifact_hash)}</p>
+                <div className="flex items-center gap-2">
+                   <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                   <p className="text-xs text-slate-400 font-semibold">Verified</p>
+                </div>
+             </div>
+          </div>
 
-          {/* Uptime & Model */}
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ ...spring, delay: 0.1 }}>
-            <Card className="glass-card">
-              <CardHeader className="pb-2">
-                <CardTitle className="font-sans font-semibold text-sm uppercase tracking-widest text-[var(--text-muted)] flex items-center gap-2">
-                  <Clock className="h-4 w-4" />
-                  Runtime Info
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0 space-y-4">
-                <div className="flex items-center justify-between py-2">
-                  <span className="text-sm text-[var(--text-secondary)]">Uptime</span>
-                  {/* FIX: Use uptime_seconds from actual response, not hardcoded */}
-                  <span className="font-mono text-[var(--text-data)] font-bold">
-                    {formatUptime(data.uptime_seconds)}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between py-2 border-t border-[var(--border-subtle)]">
-                  <span className="text-sm text-[var(--text-secondary)]">Model Version</span>
-                  <span className="font-mono text-xs text-[var(--text-data)]">
-                    {data.model_version || '—'}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between py-2 border-t border-[var(--border-subtle)]">
-                  <span className="text-sm text-[var(--text-secondary)]">Artifact Hash</span>
-                  {/* FIX: Use artifact_hash not artifact_hash (was reading wrong field) */}
-                  <span className="font-mono text-xs text-[var(--text-muted)]">
-                    {truncateHash(data.artifact_hash)}
-                  </span>
-                </div>
-                {data.schema_signature && (
-                  <div className="flex items-center justify-between py-2 border-t border-[var(--border-subtle)]">
-                    <span className="text-sm text-[var(--text-secondary)]">Schema</span>
-                    <span className="font-mono text-xs text-[var(--text-muted)]">
-                      {truncateHash(data.schema_signature)}
-                    </span>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* Overall health banner */}
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...spring, delay: 0.15 }}
-            className="md:col-span-2"
-          >
-            <Card
-              className={`glass-card ${
-                data.ready
-                  ? 'border-[var(--status-healthy)]/20'
-                  : 'border-[var(--status-critical)]/20'
-              }`}
-            >
-              <CardContent className="p-5 flex items-center gap-4">
-                {data.ready ? (
-                  <Wifi className="h-6 w-6 text-[var(--status-healthy)]" />
-                ) : (
-                  <WifiOff className="h-6 w-6 text-[var(--status-critical)]" />
-                )}
-                <div className="flex-1">
-                  <p
-                    className={`font-mono font-bold text-sm uppercase tracking-widest ${
-                      data.ready
-                        ? 'text-[var(--status-healthy)]'
-                        : 'text-[var(--status-critical)]'
-                    }`}
-                  >
-                    {data.ready ? 'ALL SYSTEMS OPERATIONAL' : 'SYSTEM DEGRADED'}
+          <div className={cn(
+            "p-12 rounded-[3rem] border flex items-center justify-between gap-12 group transition-all duration-700 backdrop-blur-3xl shadow-2xl",
+            data.ready ? "bg-emerald-500/5 border-emerald-500/20" : "bg-rose-500/5 border-rose-500/20"
+          )}>
+            <div className="flex items-center gap-10">
+               <div className={cn(
+                 "h-20 w-20 rounded-[2rem] border-2 flex items-center justify-center shadow-2xl transition-transform group-hover:scale-110",
+                 data.ready ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400" : "bg-rose-500/10 border-rose-500/30 text-rose-400"
+               )}>
+                  {data.ready ? <Wifi className="h-10 w-10" /> : <WifiOff className="h-10 w-10" />}
+               </div>
+               <div className="space-y-3">
+                  <h2 className={cn(
+                    "text-3xl font-bold leading-none",
+                    data.ready ? "text-white" : "text-rose-400"
+                  )}>
+                    {data.ready ? 'All Systems Operational' : 'System Degraded'}
+                  </h2>
+                  <p className="text-slate-400 text-sm font-medium max-w-lg mb-0">
+                    {data.ready 
+                      ? 'All services are running normally. Connections are stable.'
+                      : 'Some system components are unreachable. Please check the network.'}
                   </p>
-                  <p className="text-xs text-[var(--text-muted)] mt-0.5">
-                    {data.ready
-                      ? 'Model loaded, database connected, cache active'
-                      : 'One or more services are offline — check logs'}
-                  </p>
-                </div>
-                <StatusDot online={data.ready} />
-              </CardContent>
-            </Card>
-          </motion.div>
-
+               </div>
+            </div>
+            <StatusIndicator online={data.ready} />
+          </div>
         </div>
       )}
     </motion.div>

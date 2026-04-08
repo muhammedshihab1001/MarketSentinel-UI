@@ -30,7 +30,7 @@ function ResetCountdown({ seconds }: { seconds: number }) {
   return (
     <span className="flex items-center gap-1 text-[11px] font-mono text-[var(--text-muted)] whitespace-nowrap hidden lg:flex">
       <Clock className="w-3 h-3" />
-      resets in <span className="font-bold text-[var(--accent-primary)]">{display}</span>
+      refresh in <span className="font-bold text-[var(--accent-primary)]">{display}</span>
     </span>
   );
 }
@@ -71,12 +71,12 @@ export default function DemoBanner() {
       <div className="container mx-auto px-4 h-11 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3 overflow-hidden">
           <Badge variant="outline" className={`hidden sm:flex shrink-0 font-mono text-[10px] uppercase tracking-tighter ${locked ? 'border-rose-500 text-rose-500' : 'border-emerald-400 text-emerald-400'}`}>
-            Demo Mode Active
+            INSTITUTIONAL PREVIEW
           </Badge>
 
           <div className="flex items-center gap-3 min-w-0">
             <span className="text-[11px] font-mono text-muted-foreground whitespace-nowrap hidden md:inline py-1">
-              <span className={`font-bold ${locked ? 'text-rose-500' : 'text-emerald-400'}`}>{remaining} / {limit}</span> requests remaining
+              <span className={`font-bold ${locked ? 'text-rose-500' : 'text-emerald-400'}`}>{remaining} / {limit}</span> USAGE QUOTA
             </span>
             <div className="w-24 h-1.5 bg-muted rounded-full overflow-hidden shrink-0">
               <div
@@ -96,7 +96,7 @@ export default function DemoBanner() {
           {locked ? (
             <div className="flex items-center gap-1.5 text-rose-500 animate-in slide-in-from-right-2">
               <AlertCircle className="w-3.5 h-3.5" />
-              <span className="text-[11px] font-bold uppercase tracking-tight">Access Locked</span>
+              <span className="text-[11px] font-bold uppercase tracking-tight italic">QUOTA_EXHAUSTED</span>
             </div>
           ) : null}
 

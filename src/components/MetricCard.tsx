@@ -53,7 +53,7 @@ export function MetricCard({
         <div className="absolute inset-0 scanline opacity-[0.02] pointer-events-none" />
 
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10 px-5 pt-5">
-          <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors italic leading-none">
+          <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors leading-none">
             {title}
           </CardTitle>
           {icon && (
@@ -80,7 +80,7 @@ export function MetricCard({
         </CardHeader>
         
         <CardContent className="px-5 pb-5 relative z-10">
-          <div className="text-3xl font-black tracking-tight text-[var(--text-primary)] italic drop-shadow-md leading-none font-mono">
+          <div className="text-3xl font-bold tracking-tight text-[var(--text-primary)] drop-shadow-md leading-none">
             {value}
           </div>
           {(description || trend) && (
@@ -104,7 +104,7 @@ export function MetricCard({
                   {Math.abs(trend.value)}%
                 </div>
               )}
-              <span className="text-[9px] font-bold uppercase tracking-widest text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors italic leading-tight flex-1">
+              <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500 group-hover:text-[var(--text-secondary)] transition-colors leading-tight flex-1">
                 {description || trend?.label}
               </span>
             </div>
