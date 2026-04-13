@@ -245,7 +245,7 @@ export default function Monitoring() {
       {health && (
         <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard label="Uptime" value={health.uptime_seconds != null ? `${Math.floor(health.uptime_seconds / 60)}m` : '—'} sub="since startup" icon={Clock} color="text-cyan-400" />
-          <StatCard label="Model Version" value={health.model_version?.slice(-8) ?? '—'} sub="version ID" icon={Cpu} color="text-indigo-400" />
+          <StatCard label="Model Version" value={health.model_version ?? '—'} sub="version ID" icon={Cpu} color="text-indigo-400" />
           <StatCard label="Data Status" value={health.data_synced ? 'ACTIVE' : 'OFFLINE'} sub="Daily Data" icon={Database} color={health.data_synced ? "text-emerald-400" : "text-rose-400"} />
           <StatCard label="Baseline" value={health.drift_baseline_loaded ? 'READY' : 'MISSING'} sub="Reference" icon={ShieldCheck} color={health.drift_baseline_loaded ? "text-emerald-400" : "text-amber-400"} />
         </motion.div>

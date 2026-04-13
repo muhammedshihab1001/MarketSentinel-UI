@@ -183,9 +183,9 @@ export default function Model() {
             />
             <MetricCard
               title="Confidence"
-              value={icStats?.ic_t_stat != null ? icStats.ic_t_stat.toFixed(4) : '—'}
+              value={icStats?.ic_t_stat != null && icStats.ic_t_stat !== 0 ? icStats.ic_t_stat.toFixed(4) : 'Pending'}
               icon={<Zap />}
-              description="Statistical reliability"
+              description={icStats?.ic_t_stat != null && icStats.ic_t_stat !== 0 ? 'Statistical reliability' : 'Populates after 30 trading days'}
               trend={{ value: 0, label: '', isPositive: icStats?.ic_t_stat > 2 }}
             />
           </div>

@@ -72,9 +72,9 @@ function riskToWords(risk: string): string {
 // Convert drift state to industrial standard
 function driftToWords(drift: string): string {
   const d = drift?.toLowerCase() || 'none';
-  if (d === 'soft') return 'Soft Drift (Weight Adjusted)';
-  if (d === 'hard') return 'Hard Drift (Weight Adjusted)';
-  if (d === 'baseline_missing') return 'No Baseline Available';
+  if (d === 'soft') return 'Soft Drift';
+  if (d === 'hard') return 'Hard Drift';
+  if (d === 'baseline_missing') return 'No Baseline';
   if (d === 'detector_failure') return 'Detector Error';
   return 'Stable';
 }
@@ -140,7 +140,7 @@ export function SignalExplanation({
             signal === 'SHORT' ? 'text-rose-400' :
             'text-amber-400'
           )}>
-            {signal === 'LONG' ? 'Buy / Long' : signal === 'SHORT' ? 'Sell / Short' : 'Neutral'}
+            {signal.replace('POSITION_', '') === 'LONG' ? 'Buy / Long' : signal.replace('POSITION_', '') === 'SHORT' ? 'Sell / Short' : 'Neutral'}
           </span>{' '}
           for <span className="text-cyan-400">{ticker}</span>.
           <br/>

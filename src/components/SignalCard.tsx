@@ -116,7 +116,7 @@ export function SignalCard({ signal }: SignalCardProps) {
               {signal.drift_flag ? (
                 <div className="flex items-center gap-1.5 px-3 py-1 bg-rose-500/10 border border-rose-500/20 rounded-lg animate-pulse shadow-[0_0_10px_rgba(244,63,94,0.1)]">
                   <AlertTriangle className="h-2.5 w-2.5 text-rose-500" />
-                  <span className="text-[8px] font-bold uppercase text-rose-500 tracking-widest">DRift detected</span>
+                  <span className="text-[8px] font-bold uppercase text-rose-500 tracking-widest">Drift detected</span>
                 </div>
               ) : (
                 <div
@@ -127,7 +127,7 @@ export function SignalCard({ signal }: SignalCardProps) {
                   }}
                 >
                   <div className="h-1.5 w-1.5 rounded-full bg-[var(--status-healthy)] shadow-[0_0_8px_var(--status-healthy)]" />
-                  <span className="text-[8px] font-bold uppercase text-[var(--status-healthy)] tracking-widest">STable</span>
+                  <span className="text-[8px] font-bold uppercase text-[var(--status-healthy)] tracking-widest">Stable</span>
                 </div>
               )}
             </div>

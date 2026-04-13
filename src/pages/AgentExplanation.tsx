@@ -92,15 +92,15 @@ function getDriftDisplay(state: string) {
     case 'none':
       return { label: 'Stable', color: 'text-white' };
     case 'soft':
-      return { label: 'Soft Drift (Weight Adjusted)', color: 'text-amber-400' };
+      return { label: 'Soft Drift', color: 'text-amber-400' };
     case 'hard':
-      return { label: 'Hard Drift (Weight Adjusted)', color: 'text-rose-500' };
+      return { label: 'Hard Drift', color: 'text-rose-500' };
     case 'baseline_missing':
-      return { label: 'No Baseline Available', color: 'text-slate-500' };
+      return { label: 'No Baseline', color: 'text-slate-500' };
     case 'detector_failure':
       return { label: 'Detector Error', color: 'text-slate-500' };
     default:
-      return { label: state || 'Stable', color: 'text-white' };
+      return { label: 'Stable', color: 'text-white' };
   }
 }
 
@@ -347,7 +347,7 @@ export default function AgentExplanation() {
                          <CardTitle className="text-2xl font-bold text-white leading-none">{explainData.ticker}</CardTitle>
                          <p className="text-sm font-medium text-slate-400">Analysis Result</p>
                       </div>
-                      <SignalBadge signal={explainData.signal} className="text-md px-6 py-1.5 shadow-lg" />
+                      <SignalBadge signal={(explainData.signal?.replace('POSITION_', '') as any) ?? null} className="text-md px-6 py-1.5 shadow-lg" />
                    </div>
                 </CardHeader>
 

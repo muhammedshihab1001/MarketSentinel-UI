@@ -10,11 +10,12 @@ interface SignalBadgeProps {
 export const SignalBadge = ({ signal, className }: SignalBadgeProps) => {
   if (!signal) return <span className={cn("font-mono text-[var(--text-muted)] text-xs", className)}>—</span>;
   
+  const s = (signal?.replace('POSITION_', '') as SignalType) || signal;
   const config = {
     LONG:    { bg: 'color-mix(in srgb, var(--signal-long), transparent 90%)',    text: 'text-[var(--signal-long)]',    dot: 'bg-[var(--signal-long)]' },
     SHORT:   { bg: 'color-mix(in srgb, var(--signal-short), transparent 90%)',   text: 'text-[var(--signal-short)]',   dot: 'bg-[var(--signal-short)]' },
     NEUTRAL: { bg: 'color-mix(in srgb, var(--signal-neutral), transparent 90%)', text: 'text-[var(--signal-neutral)]', dot: 'bg-[var(--signal-neutral)]' },
-  }[signal];
+  }[s as 'LONG' | 'SHORT' | 'NEUTRAL'];
 
   return (
     <span 
@@ -26,7 +27,7 @@ export const SignalBadge = ({ signal, className }: SignalBadgeProps) => {
       style={{ backgroundColor: config.bg }}
     >
       <span className={cn(`w-1.5 h-1.5 rounded-full animate-pulse`, config.dot)} />
-      {signal === 'LONG' ? 'LONG' : signal === 'SHORT' ? 'SHORT' : 'NEUTRAL'}
+      {s === 'LONG' ? 'LONG' : s === 'SHORT' ? 'SHORT' : 'NEUTRAL'}
     </span>
   );
 };
