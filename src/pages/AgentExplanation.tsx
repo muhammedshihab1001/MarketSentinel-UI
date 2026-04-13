@@ -435,6 +435,14 @@ export default function AgentExplanation() {
                         confidenceNumeric={explainData.confidence_numeric}
                         llm={explainData.llm}
                         driftState={explainData.drift_state}
+                        riskLevel={explainData.risk_level}
+                        volatilityRegime={explainData.volatility_regime}
+                        technicalBias={explainData.technical_bias}
+                        inTop5={explainData.in_top_5}
+                        selectionReason={explainData.selection_reason}
+                        agentsApproved={explainData.agents_approved ?? []}
+                        agentsFlagged={explainData.agents_flagged ?? []}
+                        agentScores={explainData.agent_scores ?? {}}
                      />
                   </div>
                 </CardContent>
