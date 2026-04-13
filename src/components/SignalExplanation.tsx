@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import { LLMOutput } from '@/types';
 
 interface ExplainProps {
   explanation: string;
@@ -15,6 +16,7 @@ interface ExplainProps {
   agentsFlagged?: string[];
   agentScores?: Record<string, number>;
   confidenceNumeric?: number | null;
+  llm?: LLMOutput | null;
 }
 
 // Parse the pipe-separated explanation string into parts
@@ -69,9 +71,20 @@ function riskToWords(risk: string): string {
 
 // Convert drift state to industrial standard
 function driftToWords(drift: string): string {
-  if (drift === 'soft') return 'Soft Drift (Weight Adjusted)';
-  if (drift === 'hard') return 'Hard Drift (Recalibration Needed)';
-  return 'No Drift Detected';
+  const d = drift?.toLowerCase() || 'none';
+  if (d === 'soft') return 'Soft Drift (Weight Adjusted)';
+  if (d === 'hard') return 'Hard Drift (Weight Adjusted)';
+  if (d === 'baseline_missing') return 'No Baseline Available';
+  if (d === 'detector_failure') return 'Detector Error';
+  return 'Stable';
+}
+
+function driftToColor(drift: string): string {
+  const d = drift?.toLowerCase() || 'none';
+  if (d === 'soft') return 'text-amber-400';
+  if (d === 'hard') return 'text-rose-400';
+  if (d === 'baseline_missing' || d === 'detector_failure') return 'text-slate-500';
+  return 'text-white';
 }
 
 export function SignalExplanation({
@@ -88,15 +101,23 @@ export function SignalExplanation({
   agentsApproved = [],
   agentsFlagged = [],
   confidenceNumeric,
+  llm,
 }: ExplainProps) {
   const parsed = parseExplanation(explanation);
 
   const rawScore = parseFloat(parsed.score ?? '0');
-  const techScore = parseFloat(parsed.tech ?? '0');
-  const confValue = confidenceNumeric ?? parseFloat(parsed.conf ?? '0');
+  
+  // FIX 4: Correct formula using agent votes or bias fallback
+  const totalVotes = agentsApproved.length + agentsFlagged.length;
+  const alignmentScore = totalVotes > 0 
+    ? (agentsApproved.length / totalVotes)
+    : (technicalBias === 'bullish' ? 0.65 : technicalBias === 'bearish' ? 0.25 : 0.50);
 
+  const confValue = confidenceNumeric ?? parseFloat(parsed.conf ?? '0');
   const strength = scoreToWords(rawScore);
-  const confPercent = confValue > 0 ? `${(confValue * 100).toFixed(0)}%` : null;
+  
+  // FIX 1: Correct percentage formatting
+  const confPercent = confValue != null ? Math.round(confValue * 100) + '%' : '—';
 
   return (
     <div className="space-y-6">
@@ -124,7 +145,7 @@ export function SignalExplanation({
           for <span className="text-cyan-400">{ticker}</span>.
           <br/>
           Signal strength: <span className="text-cyan-500">{strength}</span> (Score: {rawScore.toFixed(2)}).
-          {confPercent && (
+          {rawScore !== 0 && (
             <div className="mt-2 text-sm text-slate-400 font-bold tracking-tight flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse" />
               Confidence: {confPercent}
@@ -149,7 +170,7 @@ export function SignalExplanation({
           </div>
           <div className="flex items-center gap-4">
             <div className="h-px w-6 bg-cyan-500/30" />
-            <p className="text-slate-400">Indicator alignment: <span className="text-cyan-400">{(techScore * 100).toFixed(0)}%</span></p>
+            <p className="text-slate-400">Indicator alignment: <span className="text-cyan-400">{Math.round(alignmentScore * 100)}%</span></p>
           </div>
         </div>
       </div>
@@ -181,7 +202,7 @@ export function SignalExplanation({
           )}
           <div className="flex items-center gap-4">
             <div className="h-px w-6 bg-rose-500/30" />
-            <p className="text-slate-400">System Stability: <span className="text-white">{driftToWords(driftState ?? 'none')}</span></p>
+            <p className="text-slate-400">System Stability: <span className={cn(driftToColor(driftState ?? 'none'))}>{driftToWords(driftState ?? 'none')}</span></p>
           </div>
         </div>
       </div>
@@ -234,11 +255,6 @@ export function SignalExplanation({
       {/* Selection Reasoning */}
       {inTop5 && selectionReason && (
         <div className="p-8 rounded-[3rem] bg-black/40 border border-white/5 shadow-2xl relative overflow-hidden group">
-           <div className="absolute bottom-0 left-0 p-8 opacity-5 text-indigo-500 pointer-events-none transform rotate-180">
-              <svg className="h-32 w-32" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-           </div>
           <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-6">
             Decision rationale
           </p>
@@ -247,6 +263,34 @@ export function SignalExplanation({
                "{selectionReason}"
              </p>
           </div>
+
+          {/* FIX 2: LLM Structured analysis */}
+          {llm?.llm_enabled && llm?.structured && !llm?.error && (
+            <div className="mt-10 space-y-10 border-t border-white/5 pt-10">
+              {[
+                { label: 'AI Enhanced Analysis', text: llm.structured.summary },
+                { label: 'Rationale',           text: llm.structured.rationale },
+                { label: 'Risk Commentary',     text: llm.structured.risk_commentary },
+                { label: 'Outlook',             text: llm.structured.outlook }
+              ].map(section => (
+                <div key={section.label} className="space-y-4">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                    {section.label}
+                  </p>
+                  <div className="relative z-10 p-6 rounded-2xl bg-white/[0.02] border border-white/5">
+                    <p className="text-base text-slate-400 leading-relaxed font-bold tracking-tight">
+                      {section.text}
+                    </p>
+                  </div>
+                </div>
+              ))}
+              <div className="pt-4">
+                <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest italic">
+                  via {llm?.model} {llm?.cached ? ' · cached' : ` · ${llm?.latency}s`}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

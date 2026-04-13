@@ -217,17 +217,20 @@ export interface PortfolioResponse {
 // AGENT EXPLAIN — matches actual /agent/explain response
 // =========================================================
 
-export interface LLMStructured {
-  summary: string;
-  rationale: string;
-  risk_commentary: string;
-  outlook: string;
-}
-
 export interface LLMOutput {
   llm_enabled: boolean;
-  model: string;
-  structured: LLMStructured | null;
+  message?: string;
+  error?: string;
+  model?: string;
+  latency?: number;
+  timestamp?: string;
+  cached?: boolean;
+  structured?: {
+    summary: string;
+    rationale: string;
+    risk_commentary: string;
+    outlook: string;
+  };
 }
 
 export interface AgentExplainData {

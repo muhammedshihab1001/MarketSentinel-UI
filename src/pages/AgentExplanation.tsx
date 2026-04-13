@@ -74,6 +74,36 @@ function labelColor(label: string) {
   }
 }
 
+// ── LLM State Helper ─────────────────────────────────────────────
+
+function getLLMState(llm: any) {
+  if (!llm) return { show: false, type: 'none' as const }
+  if (!llm.llm_enabled) return { show: false, type: 'disabled' as const }
+  if (llm.error) return { show: true, type: 'error' as const, message: llm.message }
+  if (llm.structured) return { show: true, type: 'success' as const, data: llm.structured }
+  return { show: false, type: 'none' as const }
+}
+
+// ── Drift State Helper ───────────────────────────────────────────
+
+function getDriftDisplay(state: string) {
+  const s = state?.toLowerCase() || 'none';
+  switch (s) {
+    case 'none':
+      return { label: 'Stable', color: 'text-white' };
+    case 'soft':
+      return { label: 'Soft Drift (Weight Adjusted)', color: 'text-amber-400' };
+    case 'hard':
+      return { label: 'Hard Drift (Weight Adjusted)', color: 'text-rose-500' };
+    case 'baseline_missing':
+      return { label: 'No Baseline Available', color: 'text-slate-500' };
+    case 'detector_failure':
+      return { label: 'Detector Error', color: 'text-slate-500' };
+    default:
+      return { label: state || 'Stable', color: 'text-white' };
+  }
+}
+
 // ── Rationale Node Card ─────────────────────────────────────────
 
 function RationaleNode({ item, index }: { item: Top5RationaleItem; index: number }) {
@@ -99,7 +129,7 @@ function RationaleNode({ item, index }: { item: Top5RationaleItem; index: number
       <div className="grid grid-cols-2 gap-3">
         {[
           { label: 'AI Score',     value: item.hybrid_score.toFixed(4) },
-          { label: 'Confidence',   value: (item.confidence * 100).toFixed(1) + '%' },
+          { label: 'Confidence',   value: item.confidence != null ? Math.round(item.confidence * 100) + '%' : '—' },
         ].map(({ label, value }) => (
           <div key={label} className="bg-white/5 rounded-2xl p-4 flex flex-col gap-1 border border-white/5 shadow-inner">
             <p className="text-xs font-semibold text-slate-500">{label}</p>
@@ -239,6 +269,8 @@ export default function AgentExplanation() {
   const prData = politicalResponse?.data;
   const agentsData = agentsResponse?.data?.agents;
 
+  const llmState = getLLMState(explainData?.llm || null);
+
   const prColors = prData ? labelColor(prData.political_risk_label) : labelColor('');
   const isUnavailable = prData?.political_risk_label === 'UNAVAILABLE';
   const priceData = priceHistory?.history ?? [];
@@ -319,7 +351,7 @@ export default function AgentExplanation() {
                     {[
                       { label: 'AI Score',        value: explainData.raw_model_score?.toFixed(4) },
                       { label: 'Agreement',       value: explainData.hybrid_consensus_score?.toFixed(4) },
-                      { label: 'Confidence',      value: ((explainData.confidence_numeric ?? 0) * 100).toFixed(1) + '%' },
+                      { label: 'Confidence',      value: explainData.confidence_numeric != null ? Math.round(explainData.confidence_numeric * 100) + '%' : '—' },
                       { label: 'Target Weight',   value: (explainData.weight * 100).toFixed(2) + '%' },
                     ].map(stat => (
                       <div key={stat.label} className="bg-black/20 p-4 rounded-xl border border-white/5 shadow-inner">
@@ -330,20 +362,66 @@ export default function AgentExplanation() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                     {[
-                        { label: 'Risk Level',       value: explainData.risk_level },
-                        { label: 'Volatility State', value: explainData.volatility_regime },
-                        { label: 'Trend Bias',       value: explainData.technical_bias },
-                        { label: 'System Stability', value: explainData.drift_state || 'NONE' }
-                     ].map(tag => (
-                       <div key={tag.label} className="p-4 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between">
-                          <span className="text-xs font-semibold text-slate-500">{tag.label}</span>
-                          <span className="text-xs font-bold text-white capitalize">{tag.value}</span>
-                       </div>
-                     ))}
+                      {[
+                         { label: 'Risk Level',       value: explainData.risk_level, color: 'text-white' },
+                         { label: 'Volatility State', value: explainData.volatility_regime, color: 'text-white' },
+                         { label: 'Trend Bias',       value: explainData.technical_bias, color: 'text-white' },
+                         { 
+                           label: 'System Stability', 
+                           value: getDriftDisplay(explainData.drift_state).label,
+                           color: getDriftDisplay(explainData.drift_state).color
+                         }
+                      ].map(tag => (
+                        <div key={tag.label} className="p-4 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between">
+                           <span className="text-xs font-semibold text-slate-500">{tag.label}</span>
+                           <span className={cn("text-xs font-bold capitalize", tag.color)}>{tag.value}</span>
+                        </div>
+                      ))}
                   </div>
 
                   <div className="space-y-6">
+                     {llmState.show && (
+                       <div className="space-y-4 mb-10">
+                          {llmState.type === 'success' && llmState.data && (
+                            <div className="space-y-4">
+                               <div className="flex items-center justify-between">
+                                 <div className="flex items-center gap-2">
+                                    <div className="h-1.5 w-1.5 rounded-full bg-cyan-500 animate-pulse" />
+                                    <p className="text-[10px] font-bold text-cyan-500 uppercase tracking-widest">AI Intelligence Report</p>
+                                 </div>
+                                 <span className="px-2 py-0.5 rounded-[4px] bg-cyan-500/10 border border-cyan-500/20 text-[10px] font-bold text-cyan-400 uppercase tracking-widest">
+                                    {explainData?.llm?.cached ? 'Cached' : 'AI Enhanced'}
+                                 </span>
+                               </div>
+                               
+                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div className="p-5 rounded-2xl bg-white/5 border border-white/5 space-y-2 hover:bg-white/[0.07] transition-colors">
+                                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Executive Summary</p>
+                                     <p className="text-sm text-slate-300 leading-relaxed font-medium">{llmState.data.summary}</p>
+                                  </div>
+                                  <div className="p-5 rounded-2xl bg-white/5 border border-white/5 space-y-2 hover:bg-white/[0.07] transition-colors">
+                                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Strategic Outlook</p>
+                                     <p className="text-sm text-slate-300 leading-relaxed font-medium">{llmState.data.outlook}</p>
+                                  </div>
+                                  <div className="p-5 rounded-2xl bg-white/5 border border-white/5 space-y-2 hover:bg-white/[0.07] transition-colors">
+                                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Signal Rationale</p>
+                                     <p className="text-sm text-slate-300 leading-relaxed font-medium">{llmState.data.rationale}</p>
+                                  </div>
+                                  <div className="p-5 rounded-2xl bg-white/5 border border-white/5 space-y-2 hover:bg-white/[0.07] transition-colors">
+                                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Risk Commentary</p>
+                                     <p className="text-sm text-slate-300 leading-relaxed font-medium">{llmState.data.risk_commentary}</p>
+                                  </div>
+                               </div>
+                            </div>
+                          )}
+                          {llmState.type === 'error' && (
+                             <p className="text-xs text-slate-500 font-medium italic opacity-80">
+                                {llmState.message}
+                             </p>
+                          )}
+                       </div>
+                     )}
+
                      <div className="flex items-center gap-4">
                         <span className="h-px flex-1 bg-white/10" />
                         <p className="text-xs font-semibold text-slate-500">AI Rationale</p>
@@ -354,6 +432,9 @@ export default function AgentExplanation() {
                         ticker={searchTicker} 
                         signal={explainData.signal ?? ''}
                         governanceScore={explainData.governance_score}
+                        confidenceNumeric={explainData.confidence_numeric}
+                        llm={explainData.llm}
+                        driftState={explainData.drift_state}
                      />
                   </div>
                 </CardContent>
