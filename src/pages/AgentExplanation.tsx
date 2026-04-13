@@ -274,6 +274,11 @@ export default function AgentExplanation() {
   const prColors = prData ? labelColor(prData.political_risk_label) : labelColor('');
   const isUnavailable = prData?.political_risk_label === 'UNAVAILABLE';
   const priceData = priceHistory?.history ?? [];
+  const volTagDisplay = explainData ? (
+    explainData.volatility_regime === 'high_volatility' ? 'High' :
+    explainData.volatility_regime === 'low_volatility' ? 'Stable' :
+    'Normal'
+  ) : 'Normal';
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-12 p-4 md:p-6 min-h-full pb-32">
@@ -364,7 +369,7 @@ export default function AgentExplanation() {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                       {[
                          { label: 'Risk Level',       value: explainData.risk_level, color: 'text-white' },
-                         { label: 'Volatility State', value: explainData.volatility_regime, color: 'text-white' },
+                         { label: 'Volatility State', value: volTagDisplay, color: 'text-white' },
                          { label: 'Trend Bias',       value: explainData.technical_bias, color: 'text-white' },
                          { 
                            label: 'System Stability', 
