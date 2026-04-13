@@ -4,99 +4,221 @@
 
 **Real-time AI-powered market intelligence dashboard for quantitative trading**
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](#)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?logo=typescript)](#)
-[![React](https://img.shields.io/badge/React-18-61dafb?logo=react)](#)
-[![Vite](https://img.shields.io/badge/Vite-7-646cff?logo=vite)](#)
-[![License](https://img.shields.io/badge/license-Private-red)](#)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen?style=for-the-badge)](#)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](#)
+[![React](https://img.shields.io/badge/React-18-61dafb?style=for-the-badge&logo=react&logoColor=black)](#)
+[![Vite](https://img.shields.io/badge/Vite-7-646cff?style=for-the-badge&logo=vite&logoColor=white)](#)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](./LICENSE)
 
-> A premium HUD-style dashboard interfacing with a FastAPI + XGBoost ML backend to deliver live market signals, agent reasoning, drift detection, and portfolio analytics.
+> A premium dark-mode HUD interfacing with a FastAPI + XGBoost ML backend to deliver live market signals, AI agent reasoning, drift detection, and portfolio analytics — in real time.
 
 </div>
 
 ---
 
-## 📸 Screenshots
+## 📸 Visual Walkthrough
 
-> **To populate these screenshots:** Run `npm run dev`, navigate to each page, take a full-page screenshot, and save it to `public/screenshots/` using the filenames below.
+> **📌 How to add screenshots:** Run `npm run dev`, navigate to each page, take a screenshort, and save it to `public/screenshots/` using the filenames shown below. Multiple screenshots are supported per page.
 
 &nbsp;
+
+---
 
 ### 🏠 Dashboard
-![Dashboard](public/screenshots/dashboard.png)
-> Central command hub — live signal counts, exposure metrics, top-5 opportunities, and market bias chart.
+
+> Central command hub — signal counts, top-5 opportunities, exposure gauges, and market bias chart.
+
+<table>
+  <tr>
+    <td><img src="public/screenshots/dashboard-1.png" alt="Dashboard Overview" width="100%"/><br/><sub><b>Metric Cards + Market Bias</b></sub></td>
+    <td><img src="public/screenshots/dashboard-2.png" alt="Dashboard Top 5" width="100%"/><br/><sub><b>Top 5 Opportunities Grid</b></sub></td>
+  </tr>
+</table>
 
 &nbsp;
+
+---
 
 ### 📡 Market Signals
-![Market Signals](public/screenshots/market-signals.png)
-> Full grid of LONG / SHORT / NEUTRAL signals with direction filters, search, and live sync.
+
+> Full universe of LONG / SHORT / NEUTRAL signals with direction filters, ticker search, and live sync.
+
+<table>
+  <tr>
+    <td><img src="public/screenshots/market-signals-1.png" alt="Market Signals Grid" width="100%"/><br/><sub><b>Signal Grid — All View</b></sub></td>
+    <td><img src="public/screenshots/market-signals-2.png" alt="Market Signals Filtered" width="100%"/><br/><sub><b>Filtered — LONG Signals</b></sub></td>
+  </tr>
+</table>
 
 &nbsp;
+
+---
 
 ### 🔍 Signal Detail
-![Signal Detail](public/screenshots/signal-detail.png)
-> Per-ticker drilldown with price history chart, agent votes, and full rationale breakdown.
+
+> Per-ticker drilldown: price history chart, agent vote breakdown, and full signal rationale.
+
+<table>
+  <tr>
+    <td><img src="public/screenshots/signal-detail-1.png" alt="Signal Detail Panel" width="100%"/><br/><sub><b>Analysis Panel</b></sub></td>
+    <td><img src="public/screenshots/signal-detail-2.png" alt="Signal Detail Agent" width="100%"/><br/><sub><b>Agent Votes + LLM Report</b></sub></td>
+  </tr>
+</table>
 
 &nbsp;
+
+---
 
 ### 🤖 Agent Analysis
-![Agent Analysis](public/screenshots/agent-analysis.png)
-> Multi-agent LLM reasoning panel: AI Intelligence Report, Political Risk Score, and volatility tags.
+
+> Multi-agent LLM reasoning: AI Intelligence Report (4-panel), Political Risk scan, volatility tags, and price history.
+
+<table>
+  <tr>
+    <td><img src="public/screenshots/agent-analysis-1.png" alt="Agent Header" width="100%"/><br/><sub><b>Analysis Header + Score Tags</b></sub></td>
+    <td><img src="public/screenshots/agent-analysis-2.png" alt="Agent LLM Report" width="100%"/><br/><sub><b>AI Intelligence Report</b></sub></td>
+  </tr>
+  <tr>
+    <td><img src="public/screenshots/agent-analysis-3.png" alt="Agent Political Risk" width="100%"/><br/><sub><b>Political Risk + Price Chart</b></sub></td>
+    <td></td>
+  </tr>
+</table>
 
 &nbsp;
+
+---
 
 ### 📊 Portfolio Analytics
-![Portfolio Analytics](public/screenshots/portfolio-analytics.png)
-> Real-time gross / net exposure tracking with position breakdown and weight distribution.
+
+> Real-time gross/net exposure tracking with position breakdown and weight distribution.
+
+<table>
+  <tr>
+    <td><img src="public/screenshots/portfolio-analytics-1.png" alt="Portfolio Exposure" width="100%"/><br/><sub><b>Exposure Gauges</b></sub></td>
+    <td><img src="public/screenshots/portfolio-analytics-2.png" alt="Position Table" width="100%"/><br/><sub><b>Position Ledger</b></sub></td>
+  </tr>
+</table>
 
 &nbsp;
+
+---
 
 ### 📈 Strategy Performance
-![Strategy Performance](public/screenshots/strategy-performance.png)
-> Historical returns, risk metrics (Sharpe, Sortino, Calmar), drawdown, and success rate.
+
+> Total Return, Risk Score (Sharpe), Downside Protection (Sortino), Recovery Speed (Calmar), Max Loss, Success Rate.
+
+<table>
+  <tr>
+    <td><img src="public/screenshots/strategy-performance-1.png" alt="Performance Metrics" width="100%"/><br/><sub><b>Risk Metric Grid</b></sub></td>
+    <td><img src="public/screenshots/strategy-performance-2.png" alt="Performance Meta" width="100%"/><br/><sub><b>Source + Timeframe Metadata</b></sub></td>
+  </tr>
+</table>
 
 &nbsp;
+
+---
 
 ### 🧠 AI Model
-![AI Model](public/screenshots/ai-model.png)
-> Model version, feature importance rankings, IC stats, and signal quality grade.
+
+> Model version, feature importance ranking, IC telemetry (signal quality grade), and artifact integrity hashes.
+
+<table>
+  <tr>
+    <td><img src="public/screenshots/ai-model-1.png" alt="Model Info" width="100%"/><br/><sub><b>Model Version + IC Stats</b></sub></td>
+    <td><img src="public/screenshots/ai-model-2.png" alt="Feature Importance" width="100%"/><br/><sub><b>Feature Importance Bars</b></sub></td>
+  </tr>
+</table>
 
 &nbsp;
+
+---
 
 ### 🌊 Drift Monitor
-![Drift Monitor](public/screenshots/drift-monitor.png)
-> Live algorithmic drift state, severity score, exposure scaling, and drift history.
+
+> Live algorithmic drift state, severity score, exposure scaling factor, and historical drift timeline.
+
+<table>
+  <tr>
+    <td><img src="public/screenshots/drift-monitor-1.png" alt="Drift State" width="100%"/><br/><sub><b>Drift State + Severity</b></sub></td>
+    <td><img src="public/screenshots/drift-monitor-2.png" alt="Drift Timeline" width="100%"/><br/><sub><b>Historical Timeline</b></sub></td>
+  </tr>
+</table>
 
 &nbsp;
+
+---
 
 ### 💚 Health Center
-![Health Center](public/screenshots/health-center.png)
-> Unified API, database, Redis cache, and ML model connectivity status.
+
+> Unified connectivity status: API server, PostgreSQL database, Redis cache, and ML model.
+
+<table>
+  <tr>
+    <td><img src="public/screenshots/health-1.png" alt="Health Green" width="100%"/><br/><sub><b>All Systems Online</b></sub></td>
+    <td><img src="public/screenshots/health-2.png" alt="Health Degraded" width="100%"/><br/><sub><b>Degraded / Offline State</b></sub></td>
+  </tr>
+</table>
 
 &nbsp;
+
+---
 
 ### 🖥️ System Monitor
-![System Monitor](public/screenshots/monitoring.png)
-> Prometheus metrics, request history sparklines, per-endpoint traffic bars, and cache hit rate.
+
+> Prometheus metrics, request history sparkline, per-endpoint bar chart, cache hit rate, and error rate.
+
+<table>
+  <tr>
+    <td><img src="public/screenshots/monitoring-1.png" alt="Monitoring Stats" width="100%"/><br/><sub><b>Status Strip + Stat Cards</b></sub></td>
+    <td><img src="public/screenshots/monitoring-2.png" alt="Monitoring Charts" width="100%"/><br/><sub><b>Request History + Endpoint Chart</b></sub></td>
+  </tr>
+</table>
 
 &nbsp;
+
+---
 
 ### 📉 Metrics View
-![Metrics View](public/screenshots/metrics.png)
-> High-velocity signal telemetry and real-time model output monitoring.
+
+> High-velocity signal telemetry and real-time model output monitoring table.
+
+<table>
+  <tr>
+    <td><img src="public/screenshots/metrics-1.png" alt="Metrics" width="100%"/><br/><sub><b>Signal Telemetry View</b></sub></td>
+  </tr>
+</table>
 
 &nbsp;
+
+---
 
 ### 👤 Demo Profile
-![Demo Profile](public/screenshots/demo-profile.png)
-> Quota-aware user context, feature usage tracker, and access permission management.
+
+> Quota tracker, feature usage dashboard, and locked feature gate for demo users.
+
+<table>
+  <tr>
+    <td><img src="public/screenshots/demo-profile-1.png" alt="Demo Profile" width="100%"/><br/><sub><b>Quota Usage View</b></sub></td>
+    <td><img src="public/screenshots/demo-profile-2.png" alt="Demo Locked" width="100%"/><br/><sub><b>Locked Feature State</b></sub></td>
+  </tr>
+</table>
 
 &nbsp;
 
+---
+
 ### 🔐 Login
-![Login](public/screenshots/login.png)
-> Secure access control for owner and demo users.
+
+> Secure access control for owner (full) and demo (quota-limited) users.
+
+<table>
+  <tr>
+    <td width="50%"><img src="public/screenshots/login-1.png" alt="Login" width="100%"/><br/><sub><b>Authentication Screen</b></sub></td>
+    <td width="50%"></td>
+  </tr>
+</table>
+
+&nbsp;
 
 ---
 
@@ -104,9 +226,9 @@
 
 **MarketSentinel UI** is a React 18 + TypeScript frontend for an institutional-grade quantitative trading intelligence system. It connects to a FastAPI backend running an XGBoost ensemble model + Multi-Agent LLM reasoning pipeline to deliver:
 
-- **Live buy/sell/neutral signals** for a universe of monitored equities
+- **Live LONG / SHORT / NEUTRAL signals** for a universe of monitored equities
 - **AI-powered rationale** from a multi-agent system (Signal Agent, Technical Risk Agent, Portfolio Decision Agent, Political Risk Agent)
-- **Model drift detection** with automatic weight scaling and alerts
+- **Drift detection** with automatic weight scaling and alert states
 - **Portfolio exposure tracking** with gross/net breakdown
 - **Backtested strategy performance** reporting
 
@@ -121,13 +243,13 @@ The interface is designed as a professional dark-mode HUD — optimized for trad
 | 🔴 **Live Signal Grid** | Real-time LONG / SHORT / NEUTRAL signals with direction filters and ticker search |
 | 🤖 **LLM Intelligence Reports** | 4-panel AI analysis: Summary, Rationale, Outlook, Risk Commentary |
 | 🌊 **Drift Detection** | Live stability monitoring with severity scoring and exposure auto-scaling |
-| 📊 **Portfolio Ledger** | Gross/Net exposure gauges with institutional-grade breakdowns |
+| 📊 **Portfolio Ledger** | Gross/Net exposure gauges with position breakdown |
 | 🧠 **Model Telemetry** | Feature importance, IC stats, signal quality grade, artifact integrity hashes |
-| 🛡️ **Political Risk Scan** | GDELT-powered political risk scoring for individual tickers |
+| 🛡️ **Political Risk Scan** | GDELT-powered political risk scoring per ticker |
 | 📈 **Performance Backtesting** | Total Return, Sharpe, Sortino, Calmar, Max Loss, Success Rate |
-| 💚 **System Health** | Unified health monitor for API, DB, Redis, and ML model |
-| 🖥️ **Prometheus Monitoring** | Live API request histograms, error rates, cache efficiency, inference counts |
-| 🔐 **Role-Based Access** | Owner (full) and Demo (quota-limited) user modes with automatic lockout UI |
+| 💚 **System Health** | Unified monitor for API, DB, Redis, and ML model |
+| 🖥️ **Prometheus Monitoring** | Live request histograms, error rates, cache efficiency, inference counts |
+| 🔐 **Role-Based Access** | Owner (full) and Demo (quota-limited) modes with automatic lockout UI |
 
 ---
 
@@ -144,27 +266,27 @@ The interface is designed as a professional dark-mode HUD — optimized for trad
 │  │  Agent Expl.  │    │  SignalExplanation          │    │
 │  │  Portfolio    │    │  NeuralScanner, DemoBanner  │    │
 │  │  Model / Perf │    └────────────────────────────┘    │
-│  └───────┬───────┘                                      │
-│          │                                              │
-│  ┌───────▼───────────────────────────────────────────┐  │
-│  │          State Layer                               │  │
-│  │  TanStack Query (server state + cache + polling)   │  │
-│  │  Zustand (selectedTicker, auth, usage)             │  │
+│  └───────┬───────┘                                       │
+│          │                                               │
+│  ┌───────▼────────────────────────────────────────────┐  │
+│  │              State Layer                            │  │
+│  │  TanStack Query — server state, cache, polling      │  │
+│  │  Zustand       — selectedTicker, auth, usage quota  │  │
 │  └───────┬────────────────────────────────────────────┘  │
-│          │                                              │
-│  ┌───────▼───────────────────────────────────────────┐  │
-│  │          API Client (src/lib/api.ts)               │  │
-│  │  Axios + typed wrappers for all backend endpoints  │  │
-│  └───────────────────────────────────────────────────┘  │
+│          │                                               │
+│  ┌───────▼────────────────────────────────────────────┐  │
+│  │         API Client  (src/lib/api.ts)                │  │
+│  │  Axios + typed wrappers for all backend endpoints   │  │
+│  └───────────────────────────────────────────────────┘   │
 └─────────────────────────┬───────────────────────────────┘
                           │ HTTPS / JSON
-            ┌─────────────▼───────────────┐
-            │    FastAPI Backend           │
-            │  XGBoost ML engine           │
-            │  Multi-Agent LLM pipeline    │
-            │  Drift detector              │
-            │  Prometheus metrics          │
-            └─────────────────────────────┘
+            ┌─────────────▼────────────────┐
+            │    FastAPI Backend            │
+            │  XGBoost ML ensemble engine   │
+            │  Multi-Agent LLM pipeline     │
+            │  Drift detector               │
+            │  Prometheus metrics endpoint  │
+            └──────────────────────────────┘
 ```
 
 ---
@@ -174,16 +296,14 @@ The interface is designed as a professional dark-mode HUD — optimized for trad
 ```
 market-sentinel-ui/
 ├── public/
-│   └── screenshots/          ← Place page screenshots here
-│       └── PLACE_SCREENSHOTS_HERE.md
+│   └── screenshots/                  ← Drop page screenshots here
+│       └── PLACE_SCREENSHOTS_HERE.md ← Naming guide
 ├── src/
-│   ├── App.tsx               ← Route definitions
-│   ├── main.tsx              ← Entry point
-│   ├── index.css             ← Global design tokens + glassmorphism styles
-│   ├── api/                  ← (legacy) API helpers
-│   ├── charts/               ← Recharts chart components
-│   │   └── SignalDistributionPieChart.tsx
-│   ├── components/           ← Shared UI components
+│   ├── App.tsx                       ← Route definitions
+│   ├── main.tsx                      ← Entry point
+│   ├── index.css                     ← Design tokens + global styles
+│   ├── charts/                       ← Recharts chart components
+│   ├── components/                   ← Shared UI components
 │   │   ├── DriftIndicator.tsx
 │   │   ├── MetricCard.tsx
 │   │   ├── NeuralScanner.tsx
@@ -192,14 +312,14 @@ market-sentinel-ui/
 │   │   ├── SignalExplanation.tsx
 │   │   ├── DemoBanner.tsx
 │   │   ├── LockedFeature.tsx
-│   │   └── ui/               ← ShadCN base components
+│   │   └── ui/                       ← ShadCN base components
 │   ├── layouts/
-│   │   └── DashboardLayout.tsx  ← Sidebar + nav shell
+│   │   └── DashboardLayout.tsx       ← Sidebar + navigation shell
 │   ├── lib/
-│   │   ├── api.ts            ← Typed API client (all endpoints)
-│   │   ├── queryKeys.ts      ← TanStack Query key registry
-│   │   └── utils.ts          ← cn(), formatPercent()
-│   ├── pages/                ← One file per route
+│   │   ├── api.ts                    ← Typed API client (all endpoints)
+│   │   ├── queryKeys.ts              ← TanStack Query key registry
+│   │   └── utils.ts                  ← Utility helpers
+│   ├── pages/                        ← One file per route
 │   │   ├── Dashboard.tsx
 │   │   ├── MarketSignals.tsx
 │   │   ├── SignalDetail.tsx
@@ -215,12 +335,13 @@ market-sentinel-ui/
 │   │   ├── Login.tsx
 │   │   └── ModelOffline.tsx
 │   ├── store/
-│   │   ├── index.ts          ← App store (selectedTicker)
-│   │   └── authStore.ts      ← Auth + feature quota store
+│   │   ├── index.ts                  ← App store (selectedTicker)
+│   │   └── authStore.ts              ← Auth + feature-quota store
 │   └── types/
-│       └── index.ts          ← All TypeScript types aligned to backend
-├── Dockerfile                ← Multi-stage Nginx production image
-├── vite.config.ts            ← Dev proxy + build config
+│       └── index.ts                  ← All TypeScript types, aligned to backend
+├── LICENSE                           ← MIT License
+├── Dockerfile                        ← Multi-stage Nginx production image
+├── vite.config.ts                    ← Dev proxy + build config
 ├── tailwind.config.js
 └── package.json
 ```
@@ -236,10 +357,9 @@ market-sentinel-ui/
 | Styling | TailwindCSS + ShadCN UI |
 | Animations | Framer Motion |
 | Charts | Recharts |
-| Server State | TanStack Query (React Query v5) |
+| Server State | TanStack Query v5 |
 | Client State | Zustand |
 | HTTP Client | Axios |
-| Build | Vite + TypeScript compiler |
 | Testing | Vitest + React Testing Library |
 | Deployment | Docker (Nginx multi-stage) |
 
@@ -250,19 +370,19 @@ market-sentinel-ui/
 ### Prerequisites
 - Node.js 18+
 - npm 9+
-- A running MarketSentinel backend at `http://localhost:8000` (or configured via `VITE_API_URL`)
+- Running [MarketSentinel Backend](https://github.com/muhammedshihab1001/MarketSentinel)
 
 ### Installation
 
 ```bash
-# 1. Clone the repository
+# Clone the repo
 git clone https://github.com/muhammedshihab1001/MarketSentinel-UI.git
 cd MarketSentinel-UI
 
-# 2. Install dependencies
+# Install dependencies
 npm install
 
-# 3. Configure environment variables
+# Configure environment
 cp .env.example .env
 # Edit .env and set VITE_API_URL to your backend URL
 ```
@@ -272,16 +392,17 @@ cp .env.example .env
 ```bash
 npm run dev
 ```
-Application runs at `http://localhost:5173` with automatic API proxying to the backend.
+
+App runs at `http://localhost:5173` with API proxying to the backend.
 
 ### Production Build
 
 ```bash
 npm run build     # TypeScript compile + Vite bundle
-npm run preview   # Preview the production build locally
+npm run preview   # Preview production build locally
 ```
 
-### Run Tests
+### Tests
 
 ```bash
 npm run test
@@ -291,17 +412,13 @@ npm run test
 
 ## 🐳 Docker Deployment
 
-The project includes a multi-stage `Dockerfile` optimized for production delivery via Nginx.
-
 ```bash
-# Build the Docker image
+# Build the image
 docker build -t market-sentinel-ui .
 
 # Run the container
 docker run -p 80:80 market-sentinel-ui
 ```
-
-The Nginx configuration serves the React SPA and handles client-side routing correctly.
 
 ---
 
@@ -309,29 +426,27 @@ The Nginx configuration serves the React SPA and handles client-side routing cor
 
 | Variable | Default | Description |
 |---|---|---|
-| `VITE_API_URL` | `http://localhost:8000` | Backend FastAPI base URL |
-
-Configure in `.env` (copy from `.env.example`).
+| `VITE_API_URL` | `http://localhost:8000` | FastAPI backend base URL |
 
 ---
 
-## 📡 API Endpoints Consumed
+## 📡 API Endpoints
 
 | Endpoint | Purpose |
 |---|---|
-| `GET /prediction/snapshot` | Live signal snapshot (signals, drift, meta) |
-| `GET /agent/explain/:ticker` | Per-ticker agent explanation + LLM report |
-| `GET /agent/political-risk/:ticker` | Political risk score via GDELT |
-| `GET /agent/agents` | Agent registry (names, weights) |
-| `GET /prediction/snapshot/live` | Live snapshot for agent rationale |
-| `GET /model/info` | Model version and artifact hashes |
-| `GET /model/features` | Feature importance ranking |
-| `GET /model/ic-stats` | Information Coefficient stats (30-day) |
+| `GET /prediction/snapshot` | Live signal snapshot |
+| `GET /agent/explain/:ticker` | Per-ticker agent + LLM report |
+| `GET /agent/political-risk/:ticker` | Political risk via GDELT |
+| `GET /agent/agents` | Agent registry |
+| `GET /prediction/snapshot/live` | Live snapshot for rationale |
+| `GET /model/info` | Model version + artifact hashes |
+| `GET /model/features` | Feature importance |
+| `GET /model/ic-stats` | IC stats (30-day) |
 | `GET /performance` | Strategy performance metrics |
-| `GET /portfolio` | Portfolio position and exposure data |
-| `GET /drift` | Drift state and severity |
-| `GET /health/ready` | System health (DB, Redis, model) |
-| `GET /metrics` | Prometheus metrics (text format) |
+| `GET /portfolio` | Portfolio positions + exposure |
+| `GET /drift` | Drift state + severity |
+| `GET /health/ready` | System health check |
+| `GET /metrics` | Prometheus metrics |
 | `GET /equity/history/:ticker` | OHLCV price history |
 
 ---
@@ -340,8 +455,8 @@ Configure in `.env` (copy from `.env.example`).
 
 | Mode | Access | Features |
 |---|---|---|
-| **Owner** | Username + password login | Full access to all pages including system monitoring |
-| **Demo** | Public demo token | Quota-limited access; some pages show `LockedFeature` after limit |
+| **Owner** | Username + password | Full access to all pages including system monitoring |
+| **Demo** | Public demo token | Quota-limited; pages show locked state after limit |
 
 ---
 
@@ -349,30 +464,32 @@ Configure in `.env` (copy from `.env.example`).
 
 | Page | Route | Description |
 |---|---|---|
-| Dashboard | `/` | Signal overview, top-5 opportunities, exposure gauges |
+| Dashboard | `/` | Signal overview, top-5, exposure gauges |
 | Market Signals | `/signals` | Full signal grid with filters |
-| Signal Detail | `/signals/:ticker` | Per-ticker detail with price chart |
-| Agent Analysis | `/agent-explain` | LLM intelligence report, political risk, rationale |
-| Portfolio Analytics | `/portfolio` | Gross/Net exposure, position ledger |
-| Strategy Performance | `/performance` | Historical returns and risk scores |
-| AI Model | `/model` | Feature importance, IC telemetry, artifact hashes |
-| Drift Monitor | `/drift` | Algorithmic drift detection and state history |
+| Signal Detail | `/signals/:ticker` | Per-ticker detail + price chart |
+| Agent Analysis | `/agent-explain` | LLM intelligence report + political risk |
+| Portfolio Analytics | `/portfolio` | Gross/Net exposure + positions |
+| Strategy Performance | `/performance` | Returns and risk scores |
+| AI Model | `/model` | Feature importance, IC telemetry, hashes |
+| Drift Monitor | `/drift` | Drift state and history |
 | Health Center | `/health` | System connectivity status |
-| System Monitor | `/monitoring` | Prometheus metrics, request charts |
-| Metrics View | `/metrics` | High-velocity signal telemetry |
-| Demo Profile | `/profile` | User quota and permission management |
+| System Monitor | `/monitoring` | Prometheus metrics + request charts |
+| Metrics View | `/metrics` | Signal telemetry table |
+| Demo Profile | `/profile` | Quota and permissions |
 | Login | `/login` | Authentication |
 | Model Offline | `/model-offline` | Graceful degradation view |
 
 ---
 
-## 🧑‍💻 Author
+## 📝 License
 
-**Muhammed Shihab P**
+This project is licensed under the **MIT License** — see the [LICENSE](./LICENSE) file for details.
 
 ---
 
 <div align="center">
+
+**Muhammed Shihab P** ·
 
 *Built for institutional-grade market intelligence. Not financial advice.*
 
