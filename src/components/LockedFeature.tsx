@@ -104,7 +104,7 @@ export default function LockedFeature({ featureName, resetInSeconds: propResetSe
               </Button>
               <Button 
                 className="w-full bg-rose-600 hover:bg-rose-500 text-white rounded-xl gap-2 font-semibold"
-                onClick={() => window.open('https://linkedin.com/in/muhammedshihabp', '_blank')}
+                onClick={() => window.open('https://linkedin.com/in/muhammedshihabp', '_blank', 'noopener,noreferrer')}
               >
                 <Zap className="w-4 h-4" />
                 Upgrade Access

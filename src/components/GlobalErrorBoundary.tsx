@@ -3,6 +3,7 @@ import { AlertTriangle, RefreshCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
+  const isProd = import.meta.env.VITE_ENV === 'production';
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="max-w-md w-full border border-destructive/50 bg-destructive/10 rounded-xl p-6 shadow-lg shadow-destructive/20 text-center space-y-4">
@@ -11,7 +12,9 @@ function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
         </div>
         <h2 className="text-xl font-bold tracking-tight">System Crash Detected</h2>
         <p className="text-sm text-muted-foreground whitespace-pre-wrap text-left bg-black/50 p-3 rounded-md font-mono border border-white/5">
-          {error.message || 'An unexpected rendering error occurred.'}
+          {isProd
+            ? 'An unexpected error occurred. Please reload the page.'
+            : (error.message || 'An unexpected rendering error occurred.')}
         </p>
         <p className="text-sm text-muted-foreground">
           The dashboard encountered a fatal rendering error. Please try reloading the system.

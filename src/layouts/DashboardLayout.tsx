@@ -70,7 +70,7 @@ export default function DashboardLayout() {
   // Redirect to /demo if fully locked
   useEffect(() => {
     if (role === 'demo' && fullyLocked && location.pathname !== '/demo') {
-      window.location.href = '/demo';
+      window.location.replace('/demo');
     }
   }, [fullyLocked, role, location.pathname]);
 
@@ -95,7 +95,7 @@ export default function DashboardLayout() {
     }
     authLogout();
     toast.info('Logged out successfully.');
-    window.location.href = '/login';
+    window.location.replace('/login');
   };
 
   return (
@@ -369,7 +369,7 @@ export default function DashboardLayout() {
                 <div className="flex flex-col gap-4">
                   <button
                     className="w-full h-12 rounded-xl bg-cyan-600 text-white hover:bg-cyan-500 font-semibold flex items-center justify-center gap-2 transition-all"
-                    onClick={() => window.open('https://linkedin.com/in/muhammedshihabp', '_blank')}
+                    onClick={() => window.open('https://linkedin.com/in/muhammedshihabp', '_blank', 'noopener,noreferrer')}
                   >
                     <Sparkles className="h-4 w-4" />
                     Full Access

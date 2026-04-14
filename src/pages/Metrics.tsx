@@ -48,7 +48,7 @@ const fetchMetrics = async (): Promise<string> => {
   return data;
 };
 
-const GRAFANA_URL = import.meta.env.VITE_GRAFANA_URL || 'http://localhost:3000';
+const GRAFANA_URL: string | undefined = import.meta.env.VITE_GRAFANA_URL || undefined;
 
 export default function Metrics() {
   const { isFeatureLocked } = useAuthStore();
@@ -93,14 +93,16 @@ export default function Metrics() {
           </div>
 
           <div className="flex flex-wrap items-center gap-4">
-            <Button
-              variant="outline"
-              className="h-12 px-8 border-white/5 bg-black/40 hover:bg-black/60 hover:text-cyan-400 hover:border-cyan-500/50 rounded-xl font-semibold gap-3 text-sm backdrop-blur-xl transition-all group text-slate-300"
-              onClick={() => window.open(GRAFANA_URL, '_blank')}
-            >
-              <ExternalLink className="h-4 w-4 transition-transform group-hover:scale-110" />
-              Open Grafana
-            </Button>
+            {GRAFANA_URL && (
+              <Button
+                variant="outline"
+                className="h-12 px-8 border-white/5 bg-black/40 hover:bg-black/60 hover:text-cyan-400 hover:border-cyan-500/50 rounded-xl font-semibold gap-3 text-sm backdrop-blur-xl transition-all group text-slate-300"
+                onClick={() => window.open(GRAFANA_URL!, '_blank', 'noopener,noreferrer')}
+              >
+                <ExternalLink className="h-4 w-4 transition-transform group-hover:scale-110" />
+                Open Grafana
+              </Button>
+            )}
             <Button
               variant="outline"
               className="h-12 px-8 border-white/5 bg-black/40 hover:bg-black/60 hover:text-cyan-400 hover:border-cyan-500/50 rounded-xl font-semibold gap-3 text-sm backdrop-blur-xl transition-all group text-slate-300"

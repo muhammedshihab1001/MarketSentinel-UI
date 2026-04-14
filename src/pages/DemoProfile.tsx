@@ -199,7 +199,7 @@ export default function DemoProfile() {
                     key={i}
                     variant="ghost"
                     className="w-full h-14 justify-start gap-4 px-6 bg-white/[0.02] hover:bg-cyan-500/5 border border-white/5 rounded-xl transition-all group overflow-hidden"
-                    onClick={() => window.open(btn.link, '_blank')}
+                    onClick={() => window.open(btn.link, '_blank', 'noopener,noreferrer')}
                   >
                     <btn.icon className={cn("w-4 h-4 transition-transform group-hover:scale-110", btn.color)} />
                     <span className="text-xs font-semibold text-slate-500 group-hover:text-white transition-colors">{btn.label}</span>

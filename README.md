@@ -384,7 +384,9 @@ npm install
 
 # Configure environment
 cp .env.example .env
-# Edit .env and set VITE_API_URL to your backend URL
+# Edit .env — set VITE_API_BASE_URL to your backend URL
+# Set VITE_GRAFANA_URL if you have Grafana installed
+# Set VITE_ENV=production for production deployments
 ```
 
 ### Development
@@ -424,11 +426,15 @@ docker run -p 80:80 market-sentinel-ui
 
 ## 🌐 Environment Variables
 
-| Variable | Default | Description |
+| Variable | Required | Description |
 |---|---|---|
-| `VITE_API_URL` | `http://localhost:8000` | FastAPI backend base URL |
+| `VITE_API_BASE_URL` | Production only | FastAPI backend URL (e.g. `https://api.your-domain.com`). Unset in dev — Vite proxy handles it. |
+| `VITE_GRAFANA_URL` | Optional | Grafana dashboard URL. When unset, the "Open Grafana" button in Metrics is hidden. |
+| `VITE_APP_NAME` | Optional | App display name. Default: `MarketSentinel Quant Dashboard` |
+| `VITE_ENV` | Required | `development` \| `staging` \| `production`. Controls error message verbosity. |
+| `VITE_API_TIMEOUT` | Optional | Axios timeout in ms. Default: `15000` |
 
----
+> **Vercel deployment:** Set `VITE_API_BASE_URL`, `VITE_GRAFANA_URL`, and `VITE_ENV=production` in your Vercel project settings → Environment Variables.
 
 ## 📡 API Endpoints
 
@@ -481,7 +487,28 @@ docker run -p 80:80 market-sentinel-ui
 
 ---
 
-## 📝 License
+## 🔒 Security
+
+This project follows security best practices for a production SPA:
+
+| Control | Implementation |
+|---|---|
+| **Auth** | `httpOnly` cookie sessions — JS never sees the token |
+| **XSS** | Zero `dangerouslySetInnerHTML` or `eval()` usage |
+| **Tabnapping** | All `window.open(_blank)` calls use `noopener,noreferrer` |
+| **Error Leakage** | Raw error messages suppressed in production via `VITE_ENV` |
+| **Open Redirects** | All `window.location` redirects target hardcoded internal paths only |
+| **Sensitive Storage** | `localStorage` persists only UI preferences — no credentials or tokens |
+| **CSRF** | `withCredentials: true` on all Axios requests, cookie-based auth |
+
+**Recommended Vercel security headers** (add to `vercel.json`):
+```json
+{ "key": "X-Content-Type-Options", "value": "nosniff" },
+{ "key": "X-Frame-Options", "value": "DENY" },
+{ "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+```
+
+---
 
 This project is licensed under the **MIT License** — see the [LICENSE](./LICENSE) file for details.
 
@@ -489,7 +516,7 @@ This project is licensed under the **MIT License** — see the [LICENSE](./LICEN
 
 <div align="center">
 
-**Muhammed Shihab P** ·
+**Muhammed Shihab P** 
 
 *Built for institutional-grade market intelligence. Not financial advice.*
 

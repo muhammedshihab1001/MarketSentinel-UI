@@ -385,6 +385,21 @@ export default function AgentExplanation() {
                   </div>
 
                   <div className="space-y-6">
+                     {/* LLM disabled notice */}
+                     {explainData?.llm && !explainData.llm.llm_enabled && (
+                       <div className="flex items-start gap-4 p-5 rounded-2xl bg-slate-800/40 border border-white/5 mb-2">
+                         <div className="h-8 w-8 rounded-xl bg-slate-700/50 flex items-center justify-center shrink-0 border border-white/5">
+                           <Cpu className="h-4 w-4 text-slate-500" />
+                         </div>
+                         <div className="space-y-1">
+                           <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">AI Narrative Disabled</p>
+                           <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                             {explainData.llm.message ?? 'LLM analysis is not enabled on this deployment. Quantitative scores and agent consensus data are shown below.'}
+                           </p>
+                         </div>
+                       </div>
+                     )}
+
                      {llmState.show && (
                        <div className="space-y-4 mb-10">
                           {llmState.type === 'success' && llmState.data && (
