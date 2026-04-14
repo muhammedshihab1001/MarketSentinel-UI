@@ -260,11 +260,11 @@ export default function Drift() {
                       System update recommended
                     </p>
                     <p className="text-xs text-[var(--text-muted)] mt-0.5">
-                      Stability variance detected. Execute update command:{' '}
-                      <code className="font-mono text-[var(--text-data)]">
-                        npm run update-model
-                      </code>
+                      Model accuracy has degraded below the stable threshold.
                     </p>
+                    <div className="mt-2 text-[10px] font-bold text-[var(--status-critical)] bg-[var(--status-critical)]/10 px-2 py-1 rounded inline-block uppercase tracking-widest">
+                      ACTION REQUIRED: Trigger backend retraining pipeline
+                    </div>
                   </div>
                 </CardContent>
               </Card>
