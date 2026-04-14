@@ -251,39 +251,9 @@ The interface is designed as a professional dark-mode HUD — optimized for trad
 
 ## 🏗️ Architecture
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                MarketSentinel UI (React 18)              │
-│                                                         │
-│  ┌───────────────┐    ┌────────────────────────────┐    │
-│  │  Pages (15)   │    │  Shared Components         │    │
-│  │  Dashboard    │    │  SignalCard, SignalBadge    │    │
-│  │  Market Sig.  │    │  MetricCard, DriftIndicator│    │
-│  │  Agent Expl.  │    │  SignalExplanation          │    │
-│  │  Portfolio    │    │  NeuralScanner, DemoBanner  │    │
-│  │  Model / Perf │    └────────────────────────────┘    │
-│  └───────┬───────┘                                       │
-│          │                                               │
-│  ┌───────▼────────────────────────────────────────────┐  │
-│  │              State Layer                            │  │
-│  │  TanStack Query — server state, cache, polling      │  │
-│  │  Zustand       — selectedTicker, auth, usage quota  │  │
-│  └───────┬────────────────────────────────────────────┘  │
-│          │                                               │
-│  ┌───────▼────────────────────────────────────────────┐  │
-│  │         API Client  (src/lib/api.ts)                │  │
-│  │  Axios + typed wrappers for all backend endpoints   │  │
-│  └───────────────────────────────────────────────────┘   │
-└─────────────────────────┬───────────────────────────────┘
-                          │ HTTPS / JSON
-            ┌─────────────▼────────────────┐
-            │    FastAPI Backend            │
-            │  XGBoost ML ensemble engine   │
-            │  Multi-Agent LLM pipeline     │
-            │  Drift detector               │
-            │  Prometheus metrics endpoint  │
-            └──────────────────────────────┘
-```
+<div align="center">
+  <img src="public/screenshots/architecture-diagram.png" alt="Architecture Diagram" width="100%"/>
+</div>
 
 ---
 
