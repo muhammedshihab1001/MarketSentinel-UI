@@ -311,7 +311,7 @@ export default function Dashboard() {
                 title="System Status"
                 value={driftState === 'hard' ? 'CRITICAL' : driftState === 'soft' ? 'WARNING' : 'HEALTHY'}
                 icon={<ShieldAlert className={`h-4 w-4 ${driftColor}`} />}
-                description={`Alert State: ${driftSeverity}/10`}
+                description={`Alert State: ${driftSeverity} / 15`}
                 className={driftState === 'hard' ? 'border-rose-500/20' : driftState === 'soft' ? 'border-amber-500/20' : ''}
               />
             </motion.div>
