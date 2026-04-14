@@ -18,10 +18,6 @@
 
 ## 📸 Visual Walkthrough
 
-> **📌 How to add screenshots:** Run `npm run dev`, navigate to each page, take a screenshort, and save it to `public/screenshots/` using the filenames shown below. Multiple screenshots are supported per page.
-
-&nbsp;
-
 ---
 
 ### 🏠 Dashboard
@@ -30,8 +26,8 @@
 
 <table>
   <tr>
-    <td><img src="public/screenshots/dashboard-1.png" alt="Dashboard Overview" width="100%"/><br/><sub><b>Metric Cards + Market Bias</b></sub></td>
-    <td><img src="public/screenshots/dashboard-2.png" alt="Dashboard Top 5" width="100%"/><br/><sub><b>Top 5 Opportunities Grid</b></sub></td>
+    <td><img src="public/screenshots/Dashboard-1.png" alt="Dashboard Overview" width="100%"/><br/><sub><b>Metric Cards + Market Bias</b></sub></td>
+    <td><img src="public/screenshots/Dashboard-2.png" alt="Dashboard Top 5" width="100%"/><br/><sub><b>Top 5 Opportunities Grid</b></sub></td>
   </tr>
 </table>
 
@@ -45,8 +41,8 @@
 
 <table>
   <tr>
-    <td><img src="public/screenshots/market-signals-1.png" alt="Market Signals Grid" width="100%"/><br/><sub><b>Signal Grid — All View</b></sub></td>
-    <td><img src="public/screenshots/market-signals-2.png" alt="Market Signals Filtered" width="100%"/><br/><sub><b>Filtered — LONG Signals</b></sub></td>
+    <td><img src="public/screenshots/Market_Signals-1.png" alt="Market Signals Grid" width="100%"/><br/><sub><b>Signal Grid — All View</b></sub></td>
+    <td><img src="public/screenshots/Market_Signals-2.png" alt="Market Signals Filtered" width="100%"/><br/><sub><b>Filtered — LONG Signals</b></sub></td>
   </tr>
 </table>
 
@@ -60,8 +56,8 @@
 
 <table>
   <tr>
-    <td><img src="public/screenshots/signal-detail-1.png" alt="Signal Detail Panel" width="100%"/><br/><sub><b>Analysis Panel</b></sub></td>
-    <td><img src="public/screenshots/signal-detail-2.png" alt="Signal Detail Agent" width="100%"/><br/><sub><b>Agent Votes + LLM Report</b></sub></td>
+    <td><img src="public/screenshots/Signal_expalin-1.png" alt="Signal Detail Panel" width="100%"/><br/><sub><b>Analysis Panel</b></sub></td>
+    <td><img src="public/screenshots/Signal_expalin-2.png" alt="Signal Detail Agent" width="100%"/><br/><sub><b>Agent Votes + LLM Report</b></sub></td>
   </tr>
 </table>
 
@@ -75,12 +71,12 @@
 
 <table>
   <tr>
-    <td><img src="public/screenshots/agent-analysis-1.png" alt="Agent Header" width="100%"/><br/><sub><b>Analysis Header + Score Tags</b></sub></td>
-    <td><img src="public/screenshots/agent-analysis-2.png" alt="Agent LLM Report" width="100%"/><br/><sub><b>AI Intelligence Report</b></sub></td>
+    <td><img src="public/screenshots/Signal_expalin-3.png" alt="Agent Header" width="100%"/><br/><sub><b>Analysis Header + Score Tags</b></sub></td>
+    <td><img src="public/screenshots/Signal_expalin-4.png" alt="Agent LLM Report" width="100%"/><br/><sub><b>AI Intelligence Report</b></sub></td>
   </tr>
   <tr>
-    <td><img src="public/screenshots/agent-analysis-3.png" alt="Agent Political Risk" width="100%"/><br/><sub><b>Political Risk + Price Chart</b></sub></td>
-    <td></td>
+    <td><img src="public/screenshots/Signal_expalin-5.png" alt="Agent Political Risk" width="100%"/><br/><sub><b>Political Risk + Price Chart</b></sub></td>
+    <td><img src="public/screenshots/Signal_expalin-6.png" alt="Agent Political Risk" width="100%"/><br/><sub><b>Additional Rationale</b></sub></td>
   </tr>
 </table>
 
@@ -110,7 +106,7 @@
 <table>
   <tr>
     <td><img src="public/screenshots/strategy-performance-1.png" alt="Performance Metrics" width="100%"/><br/><sub><b>Risk Metric Grid</b></sub></td>
-    <td><img src="public/screenshots/strategy-performance-2.png" alt="Performance Meta" width="100%"/><br/><sub><b>Source + Timeframe Metadata</b></sub></td>
+    <td></td>
   </tr>
 </table>
 
@@ -140,7 +136,7 @@
 <table>
   <tr>
     <td><img src="public/screenshots/drift-monitor-1.png" alt="Drift State" width="100%"/><br/><sub><b>Drift State + Severity</b></sub></td>
-    <td><img src="public/screenshots/drift-monitor-2.png" alt="Drift Timeline" width="100%"/><br/><sub><b>Historical Timeline</b></sub></td>
+    <td></td>
   </tr>
 </table>
 
@@ -155,7 +151,7 @@
 <table>
   <tr>
     <td><img src="public/screenshots/health-1.png" alt="Health Green" width="100%"/><br/><sub><b>All Systems Online</b></sub></td>
-    <td><img src="public/screenshots/health-2.png" alt="Health Degraded" width="100%"/><br/><sub><b>Degraded / Offline State</b></sub></td>
+    <td></td>
   </tr>
 </table>
 
@@ -170,7 +166,7 @@
 <table>
   <tr>
     <td><img src="public/screenshots/monitoring-1.png" alt="Monitoring Stats" width="100%"/><br/><sub><b>Status Strip + Stat Cards</b></sub></td>
-    <td><img src="public/screenshots/monitoring-2.png" alt="Monitoring Charts" width="100%"/><br/><sub><b>Request History + Endpoint Chart</b></sub></td>
+    <td></td>
   </tr>
 </table>
 
@@ -199,7 +195,7 @@
 <table>
   <tr>
     <td><img src="public/screenshots/demo-profile-1.png" alt="Demo Profile" width="100%"/><br/><sub><b>Quota Usage View</b></sub></td>
-    <td><img src="public/screenshots/demo-profile-2.png" alt="Demo Locked" width="100%"/><br/><sub><b>Locked Feature State</b></sub></td>
+    <td></td>
   </tr>
 </table>
 
@@ -214,7 +210,7 @@
 <table>
   <tr>
     <td width="50%"><img src="public/screenshots/login-1.png" alt="Login" width="100%"/><br/><sub><b>Authentication Screen</b></sub></td>
-    <td width="50%"></td>
+    <td width="50%"><img src="public/screenshots/login-2.png" alt="Login Action" width="100%"/><br/><sub><b>Auth Actions</b></sub></td>
   </tr>
 </table>
 
@@ -296,8 +292,7 @@ The interface is designed as a professional dark-mode HUD — optimized for trad
 ```
 market-sentinel-ui/
 ├── public/
-│   └── screenshots/                  ← Drop page screenshots here
-│       └── PLACE_SCREENSHOTS_HERE.md ← Naming guide
+│   └── screenshots/                  ← UI Screenshots
 ├── src/
 │   ├── App.tsx                       ← Route definitions
 │   ├── main.tsx                      ← Entry point
