@@ -192,7 +192,7 @@ export default function DemoProfile() {
               <div className="space-y-5">
                 {[
                   { label: 'LinkedIn', icon: Zap, link: 'https://linkedin.com/in/muhammedshihabp', color: 'text-blue-400' },
-                  { label: 'WhatsApp', icon: MessageCircle, link: 'https://wa.me/919946282828', color: 'text-emerald-400' },
+                  { label: 'Discord', icon: MessageCircle, link: 'https://discordapp.com/users/muhammedshihab1001/', color: 'text-indigo-400' },
                   { label: 'GitHub', icon: Github, link: 'https://github.com/muhammedshihab1001', color: 'text-white' },
                 ].map((btn, i) => (
                   <Button
