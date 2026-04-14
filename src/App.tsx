@@ -113,7 +113,7 @@ function App() {
   return (
     <GlobalErrorBoundary>
       <Toaster richColors theme="dark" closeButton position="top-right" />
-      <Router>
+      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <AppRoutes />
       </Router>
     </GlobalErrorBoundary>
