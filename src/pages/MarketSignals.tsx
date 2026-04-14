@@ -56,12 +56,7 @@ export default function MarketSignals() {
     enabled: !isLocked,
   });
 
-  // Handle DemoLockedError — show LockedFeature instead of fatal error panel
-  if (isError && error instanceof DemoLockedError) {
-    if (error.usage) updateUsage(error.usage);
-    if (!lockedFeature) setLockedFeature({ name: error.feature, reset: error.resetInSeconds });
-  }
-  if (lockedFeature) return <LockedFeature featureName={lockedFeature.name} resetInSeconds={lockedFeature.reset} />;
+
 
   const d = snapshotResponse as any;
   const isComputing = d?.served_from_cache === false || d?.metadata?.served_from_cache === false || (snapshotResponse && (!d?.snapshot?.signals || d.snapshot.signals.length === 0));
@@ -100,6 +95,13 @@ export default function MarketSignals() {
     SHORT:   signals.filter((s: any) => s.weight < -0.01).length,
     NEUTRAL: signals.filter((s: any) => s.weight >= -0.01 && s.weight <= 0.01).length,
   }), [signals]);
+
+  // Handle DemoLockedError — show LockedFeature instead of fatal error panel
+  if (isError && error instanceof DemoLockedError) {
+    if (error.usage) updateUsage(error.usage);
+    if (!lockedFeature) setLockedFeature({ name: error.feature, reset: error.resetInSeconds });
+  }
+  if (lockedFeature) return <LockedFeature featureName={lockedFeature.name} resetInSeconds={lockedFeature.reset} />;
 
   const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.05 } } };
   const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };

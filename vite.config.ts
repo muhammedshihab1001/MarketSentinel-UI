@@ -1,16 +1,8 @@
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 
-export default defineConfig(({ mode, command }) => {
-  // Load ALL env vars (prefix '' = no filter).
-  // VITE_* vars are also available here, but we intentionally use a
-  // non-VITE_ prefixed variable for the proxy target so it is never
-  // embedded in the client bundle.
-  const env = loadEnv(mode, process.cwd(), '')
-
-
-
+export default defineConfig(() => {
   return {
     plugins: [react()],
 

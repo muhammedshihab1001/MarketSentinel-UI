@@ -59,6 +59,13 @@ export default function Dashboard() {
     enabled: !isLocked,
   });
 
+  const refreshMutation = useMutation({
+    mutationFn: predictionApi.getSnapshot,
+    onSuccess: (newData) => {
+      queryClient.setQueryData(QUERY_KEYS.SNAPSHOT, newData);
+    },
+  });
+
   // Handle DemoLockedError — show LockedFeature instead of generic error card
   if (isError && error instanceof DemoLockedError) {
     if (error.usage) updateUsage(error.usage);
@@ -66,12 +73,7 @@ export default function Dashboard() {
   }
   if (lockedFeature) return <LockedFeature featureName={lockedFeature.name} resetInSeconds={lockedFeature.reset} />;
 
-  const refreshMutation = useMutation({
-    mutationFn: predictionApi.getSnapshot,
-    onSuccess: (newData) => {
-      queryClient.setQueryData(QUERY_KEYS.SNAPSHOT, newData);
-    },
-  });
+
 
   // ── FIX: Read from correct nested fields ────────────────
   // Old code read phantom fields: snapshot.top_5, snapshot.agents, decision_report
