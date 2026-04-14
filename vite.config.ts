@@ -1,32 +1,8 @@
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 
-export default defineConfig(({ mode, command }) => {
-  // Load ALL env vars (prefix '' = no filter).
-  // VITE_* vars are also available here, but we intentionally use a
-  // non-VITE_ prefixed variable for the proxy target so it is never
-  // embedded in the client bundle.
-  const env = loadEnv(mode, process.cwd(), '')
-
-  // ── Dev proxy target ────────────────────────────────────────────────────
-  // Read exclusively from .env — no hardcoded defaults, no fallbacks.
-  const proxyTarget = env.API_PROXY_TARGET
-
-  // We ONLY need the proxy target during local development (`npm run dev`).
-  // When deploying to Vercel (`npm run build`), the command is 'build' and
-  // the proxy configuration is ignored, so we shouldn't crash if it's missing.
-  if (command === 'serve') {
-    if (!proxyTarget) {
-      throw new Error(
-        '\n[vite] Missing required env variable: API_PROXY_TARGET\n' +
-        'Add it to your .env file:\n' +
-        '  API_PROXY_TARGET=https://your-backend-url.com\n'
-      )
-    }
-    console.info(`[vite] Dev proxy → ${proxyTarget}`)
-  }
-
+export default defineConfig(() => {
   return {
     plugins: [react()],
 
@@ -41,7 +17,7 @@ export default defineConfig(({ mode, command }) => {
       port: 5173,
       proxy: {
         '/api': {
-          target: proxyTarget,
+          target: process.env.VITE_API_BASE_URL || 'http://localhost:8000',
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api/, ''),
           // Required for HTTPS targets and httpOnly cookie forwarding
@@ -52,6 +28,7 @@ export default defineConfig(({ mode, command }) => {
 
     // Build optimizations
     build: {
+      outDir: 'dist',
       target: 'esnext',
       rollupOptions: {
         output: {

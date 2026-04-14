@@ -254,6 +254,8 @@ export interface AgentExplainData {
   agents_flagged?: string[];
   agent_scores?: Record<string, number>;
   llm: LLMOutput | null;
+  rank?: number;
+  latency_ms?: number;
 }
 
 export interface AgentExplainResponse {
@@ -298,6 +300,7 @@ export interface AgentListResponse {
 
 export interface PerformanceMetrics {
   cumulative_return: number;
+  annual_return?: number;
   sharpe_ratio: number;
   sortino_ratio: number;
   calmar_ratio: number;

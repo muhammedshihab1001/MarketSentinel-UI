@@ -176,7 +176,7 @@ export default function Model() {
             />
             <MetricCard
               title="Signal Strength"
-              value={icStats?.ic_mean != null ? icStats.ic_mean.toFixed(4) : '—'}
+              value={icStats?.status === 'no_predictions' || icStats?.ic_mean == null ? 'Pending' : icStats.ic_mean.toFixed(4)}
               icon={<Activity />}
               description="Model predictive grade"
                trend={{ value: 0, label: '', isPositive: icStats?.ic_mean > 0 }}

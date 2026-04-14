@@ -59,6 +59,13 @@ export default function Dashboard() {
     enabled: !isLocked,
   });
 
+  const refreshMutation = useMutation({
+    mutationFn: predictionApi.getSnapshot,
+    onSuccess: (newData) => {
+      queryClient.setQueryData(QUERY_KEYS.SNAPSHOT, newData);
+    },
+  });
+
   // Handle DemoLockedError — show LockedFeature instead of generic error card
   if (isError && error instanceof DemoLockedError) {
     if (error.usage) updateUsage(error.usage);
@@ -66,12 +73,7 @@ export default function Dashboard() {
   }
   if (lockedFeature) return <LockedFeature featureName={lockedFeature.name} resetInSeconds={lockedFeature.reset} />;
 
-  const refreshMutation = useMutation({
-    mutationFn: predictionApi.getSnapshot,
-    onSuccess: (newData) => {
-      queryClient.setQueryData(QUERY_KEYS.SNAPSHOT, newData);
-    },
-  });
+
 
   // ── FIX: Read from correct nested fields ────────────────
   // Old code read phantom fields: snapshot.top_5, snapshot.agents, decision_report
@@ -311,7 +313,7 @@ export default function Dashboard() {
                 title="System Status"
                 value={driftState === 'hard' ? 'CRITICAL' : driftState === 'soft' ? 'WARNING' : 'HEALTHY'}
                 icon={<ShieldAlert className={`h-4 w-4 ${driftColor}`} />}
-                description={`Alert State: ${driftSeverity}/10`}
+                description={`Alert State: ${driftSeverity} / 15`}
                 className={driftState === 'hard' ? 'border-rose-500/20' : driftState === 'soft' ? 'border-amber-500/20' : ''}
               />
             </motion.div>
