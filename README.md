@@ -251,8 +251,19 @@ The interface is designed as a professional dark-mode HUD — optimized for trad
 
 ## 🏗️ Architecture
 
+### Core System Structure
 <div align="center">
   <img src="public/screenshots/architecture-diagram.png" alt="Architecture Diagram" width="100%"/>
+</div>
+
+### Multi-Agent LLM Pipeline
+<div align="center">
+  <img src="public/screenshots/agent-workflow.png" alt="Multi-Agent LLM Pipeline Diagram" width="100%"/>
+</div>
+
+### Real-Time Data Flow
+<div align="center">
+  <img src="public/screenshots/data-flow.png" alt="Data Flow Diagram" width="100%"/>
 </div>
 
 ---
