@@ -246,7 +246,7 @@ export default function Drift() {
           </div>
 
           {/* Retrain warning banner */}
-          {data.retrain_required && (
+          {data?.retrain_required === true && (
             <motion.div
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
