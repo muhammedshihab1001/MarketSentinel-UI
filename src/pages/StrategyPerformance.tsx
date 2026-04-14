@@ -149,7 +149,7 @@ export default function StrategyPerformance() {
             />
             <MetricCard
               title="Annual Yield"
-              value={fmtPct4((m as any).annual_return ?? m.cumulative_return)}
+              value={fmtPct4((m as any).annual_return ?? null)}
               icon={<TrendingUp className="text-cyan-400" />}
               description="Yearly output"
             />

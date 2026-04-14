@@ -116,12 +116,6 @@ export default function Monitoring() {
     enabled: !isLocked,
   });
 
-  const { data: _icData } = useQuery({
-    queryKey: ['monitoring-ic'],
-    queryFn: () => modelApi.getInfo(),
-    refetchInterval: 60000,
-  });
-
   const { data: rawMetrics, isFetching, refetch: refetchMetrics, error: metricsError } = useQuery({
     queryKey: ['monitoring-metrics'],
     queryFn: async () => {

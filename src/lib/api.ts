@@ -36,7 +36,7 @@ export class OwnerOnlyError extends Error {
   }
 }
 
-// In development: VITE_API_BASE_URL is unset → falls back to '/api' → Vite dev proxy forwards to localhost:8000
+// In development: VITE_API_BASE_URL is unset → falls back to '/api' → Vite dev proxy forwards to remote backend
 // In production:  VITE_API_BASE_URL = 'https://your-backend.example.com' → direct HTTPS calls
 const API_BASE = import.meta.env.VITE_API_BASE_URL
   ? `${import.meta.env.VITE_API_BASE_URL}`
@@ -106,13 +106,13 @@ api.interceptors.response.use(
 
       // Handle redirect if fully locked
       if (usage?.fully_locked) {
-        window.location.href = '/demo';
+        window.location.replace('/demo');
       }
 
       // Sync store (dynamic import to avoid circular dependency)
       import('../store/authStore').then(({ useAuthStore }) => {
         useAuthStore.getState().updateUsage(usage);
-      }).catch(err => console.error('Store sync failed:', err));
+      }).catch(() => { /* store sync failure is non-fatal — silently ignored */ });
 
       throw new DemoLockedError(response.data);
     }
@@ -139,7 +139,7 @@ api.interceptors.response.use(
       const requestUrl = error.config?.url ?? '';
       // Do not redirect on auth/me — it legitimately returns 401
       if (!requestUrl.includes('/auth/me') && !requestUrl.includes('/auth/owner-login')) {
-        window.location.href = '/login';
+        window.location.replace('/login');
       }
     }
     

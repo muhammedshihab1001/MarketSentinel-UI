@@ -17,6 +17,7 @@ import {
   Zap,
   Shield,
   Activity,
+  Cpu,
 } from 'lucide-react';
 import { QUERY_KEYS, INTERVALS } from '@/lib/queryKeys';
 import { motion } from 'framer-motion';
@@ -217,7 +218,9 @@ export default function SignalDetail() {
                 <div className="flex flex-col gap-1 min-w-[150px]">
                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Volatility</span>
                   <div className="text-xs font-bold capitalize text-cyan-400 bg-cyan-500/10 border border-cyan-500/30 px-4 py-2 rounded-xl shadow w-fit">
-                    {detail.volatility_regime?.replace('_', ' ') ?? 'Stable'}
+                    {detail.volatility_regime === 'high_volatility' ? 'High' :
+                     detail.volatility_regime === 'low_volatility' ? 'Stable' :
+                     detail.volatility_regime === 'normal' ? 'Normal' : 'Normal'}
                   </div>
                 </div>
                 <div className="flex flex-col gap-1 min-w-[150px]">
@@ -228,7 +231,11 @@ export default function SignalDetail() {
                       ? 'text-slate-400 bg-slate-500/5 border border-white/5' 
                       : 'text-rose-400 bg-rose-500/10 border border-rose-500/30'
                   )}>
-                    {detail.drift_state ?? 'Good'}
+                    {!detail.drift_state || detail.drift_state === 'none' ? 'Stable' :
+                     detail.drift_state === 'soft' ? 'Soft Drift' :
+                     detail.drift_state === 'hard' ? 'Hard Drift' :
+                     detail.drift_state === 'baseline_missing' ? 'No Baseline' :
+                     detail.drift_state === 'detector_failure' ? 'Detector Error' : 'Stable'}
                   </div>
                 </div>
                 <div className="flex flex-col gap-1 min-w-[150px]">
@@ -320,6 +327,23 @@ export default function SignalDetail() {
             </motion.div>
           )}
 
+          {/* LLM Disabled Notice */}
+          {detail.llm && !detail.llm.llm_enabled && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.32 }}>
+              <div className="flex items-start gap-4 p-5 rounded-2xl bg-slate-800/40 border border-white/5">
+                <div className="h-8 w-8 rounded-xl bg-slate-700/50 flex items-center justify-center shrink-0 border border-white/5">
+                  <Cpu className="h-4 w-4 text-slate-500" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">AI Narrative Disabled</p>
+                  <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                    {detail.llm.message ?? 'LLM analysis is not enabled on this deployment. Quantitative scores and agent consensus data are shown below.'}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
           {/* Unified Explanation Section */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
             <SignalExplanation
@@ -337,6 +361,7 @@ export default function SignalDetail() {
               agentsFlagged={detail.agents_flagged}
               agentScores={detail.agent_scores}
               confidenceNumeric={detail.confidence_numeric}
+              llm={detail.llm ?? null}
             />
           </motion.div>
 

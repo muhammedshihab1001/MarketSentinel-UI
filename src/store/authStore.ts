@@ -106,10 +106,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             get().updateUsage(data.usage);
           }
         } catch (error: any) {
-          console.error('Failed to refresh usage:', error);
           if (error?.status === 401 || error?.response?.status === 401) {
             get().logout();
           }
+          // Non-401 refresh failures are silently ignored — session remains valid
         }
         resolve();
       }, 500); // 500ms — was 2000ms, caused stale quota display in DemoBanner
